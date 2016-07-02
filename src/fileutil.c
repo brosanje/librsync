@@ -20,26 +20,27 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "config.h"
+#include "fileutil.h"
+
+#include "librsync.h"
 
 #include <assert.h>
 #include <stdlib.h>
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <stdio.h>
+
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
+
 #ifdef HAVE_SYS_FILE_H
 #include <sys/file.h>
 #endif
+
 #include <string.h>
 #include <errno.h>
-
-#include "librsync.h"
-#include "fileutil.h"
-#include "trace.h"
 
 
 /**
@@ -49,39 +50,43 @@
  * \param fopen-style mode string.
  */
 FILE *
-rs_file_open(char const *filename, char const *mode)
+EXPORTABLE rs_file_open(char const *filename, char const *mode)
 {
     FILE           *f;
-    int		    is_write;
+    int                    is_write;
 
     is_write = mode[0] == 'w';
 
     if (!filename  ||  !strcmp("-", filename)) {
-	if (is_write) {
+        if (is_write) {
 #if _WIN32
-	    _setmode(_fileno(stdout), _O_BINARY);
+            _setmode(_fileno(stdout), _O_BINARY);
 #endif
-	    return stdout;
-	} else {
+            return stdout;
+        } else {
 #if _WIN32
-	    _setmode(_fileno(stdin), _O_BINARY);
+            _setmode(_fileno(stdin), _O_BINARY);
 #endif
-	    return stdin;
-	}
+            return stdin;
+        }
     }
 
     if (!(f = fopen(filename, mode))) {
-	rs_error("Error opening \"%s\" for %s: %s", filename,
-		  is_write ? "write" : "read",
-		  strerror(errno));
-	exit(RS_IO_ERROR);
+        rs_error("Error opening \"%s\" for %s: %s", filename,
+                  is_write ? "write" : "read",
+                  strerror(errno));
+        exit(RS_IO_ERROR);
     }
     
     return f;
 }
 
-int rs_file_close(FILE * f)
+int
+EXPORTABLE rs_file_close(FILE * f)
 {
     if ((f == stdin) || (f == stdout)) return 0;
     return fclose(f);
 }
+
+/* vim: expandtab shiftwidth=4
+ */

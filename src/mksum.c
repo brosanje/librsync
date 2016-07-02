@@ -37,19 +37,16 @@
  * will be OK at the moment, though, because tails are only used if
  * necessary. */
 
-#include "config.h"
+#include "librsync.h"
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 
-#include "librsync.h"
 #include "stream.h"
 #include "util.h"
 #include "sumset.h"
 #include "job.h"
 #include "netint.h"
-#include "trace.h"
 #include "checksum.h"
 
 

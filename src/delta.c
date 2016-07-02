@@ -62,19 +62,16 @@
  */
 
 
-#include "config.h"
+#include "librsync.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
 
-#include "librsync.h"
 #include "emit.h"
 #include "stream.h"
 #include "util.h"
 #include "sumset.h"
 #include "job.h"
-#include "trace.h"
 #include "search.h"
 #include "types.h"
 #include "rollsum.h"
@@ -477,3 +474,6 @@ rs_job_t *rs_delta_begin(rs_signature_t *sig)
 
     return job;
 }
+
+/* vim: expandtab shiftwidth=4
+ */

@@ -20,6 +20,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_SEARCH_H_
+#define __LIBRSYNC_SEARCH_H_
+
+#include "librsync.h"
+
 int
 rs_search_for_block(rs_weak_sum_t weak_sum,
                     const rs_byte_t *inbuf,
@@ -27,3 +32,7 @@ rs_search_for_block(rs_weak_sum_t weak_sum,
                     rs_signature_t const *sums, rs_stats_t * stats,
                     rs_long_t * match_where);
 
+#endif // __LIBRSYNC_SEARCH_H_
+
+/* vim: expandtab shiftwidth=4
+ */

@@ -58,17 +58,14 @@
                                |   -- Shihad, `The General Electric'.
                                */ 
 
-#include "config.h"
+#include "librsync.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "librsync.h"
 #include "job.h"
 #include "stream.h"
-#include "trace.h"
 #include "util.h"
 
 
@@ -262,3 +259,6 @@ size_t rs_scoop_total_avail(rs_job_t *job)
 {
     return job->scoop_avail + job->stream->avail_in;
 }
+
+/* vim: expandtab shiftwidth=4
+ */

@@ -18,8 +18,12 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_ISPREFIX_H_
+#define __LIBRSYNC_ISPREFIX_H_
 
 /*
  * Return true if TIP is a prefix of ICEBERG.
  */
 int isprefix(char const *tip, char const *iceberg);
+
+#endif // __LIBRSYNC_ISPREFIX_H_

@@ -33,7 +33,8 @@
  * function name.
  */
 
-#include "config.h"
+#include "trace.h"
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #else
@@ -45,13 +46,48 @@
 #endif
 #include <string.h>
 #include <errno.h>
-#include <stdlib.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <math.h>
 
-#include "librsync.h"
 #include "util.h"
-#include "trace.h"
+
+#ifndef WIN32
+#include <sys/time.h>
+#else
+#include <Windows.h>
+//typedef struct timeval {
+//    long tv_sec;
+//    long tv_usec;
+//};
+
+/* FILETIME of Jan 1 1970 00:00:00. */
+static const unsigned __int64 epoch = ((unsigned __int64) 116444736000000000ULL);
+
+/*
+* timezone information is stored outside the kernel so tzp isn't used anymore.
+*
+* Note: this function is not for Win32 high precision timing purpose. See
+* elapsed_time().
+*/
+int
+gettimeofday(struct timeval * tp, struct timezone * tzp)
+{
+    FILETIME    file_time;
+    SYSTEMTIME  system_time;
+    ULARGE_INTEGER ularge;
+
+    GetSystemTime(&system_time);
+    SystemTimeToFileTime(&system_time, &file_time);
+    ularge.LowPart = file_time.dwLowDateTime;
+    ularge.HighPart = file_time.dwHighDateTime;
+
+    tp->tv_sec = (long)((ularge.QuadPart - epoch) / 10000000L);
+    tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+
+    return 0;
+}
+#endif
 
 rs_trace_fn_t  *rs_trace_impl = rs_trace_stderr;
 
@@ -63,7 +99,8 @@ int rs_trace_level = RS_LOG_INFO;
 #  define MY_NAME "librsync"
 #endif
 
-static void rs_log_va(int level, char const *fn, char const *fmt, va_list va);
+static char* rs_timestamp(char* buffer, int bufsz);
+static void  rs_log_va(int level, char const *fn, char const *fmt, va_list va);
 
 #if SIZEOF_SIZE_T > SIZEOF_LONG
 #  warning size_t is larger than a long integer, values in trace messages may be wrong
@@ -75,11 +112,27 @@ static void rs_log_va(int level, char const *fn, char const *fmt, va_list va);
  * ::rs_loglevel.
  */
 static const char *rs_severities[] = {
-    "EMERGENCY! ", "ALERT! ", "CRITICAL! ", "ERROR: ", "Warning: ",
-    "", "", ""
+    "EMERGENCY!"
+    , "ALERT!"
+    , "CRITICAL!"
+    , "ERROR:"
+    , "Warning:"
+    , "Notice:"
+    , "Info:"
+    , "Debug:"
+    , "Trace:"
 };
 
 
+int
+EXPORTABLE rs_supports_trace(void)
+{
+#ifdef DO_RS_TRACE
+    return 1;
+#else
+    return 0;
+#endif                                /* !DO_RS_TRACE */
+}
 
 /**
  * \brief Set the destination of trace information.
@@ -92,44 +145,17 @@ static const char *rs_severities[] = {
  * tracing?
  */
 void
-rs_trace_to(rs_trace_fn_t * new_impl)
+EXPORTABLE rs_trace_to(rs_trace_fn_t * new_impl)
 {
     rs_trace_impl = new_impl;
 }
 
 
 void
-rs_trace_set_level(rs_loglevel level)
+EXPORTABLE rs_trace_set_level(rs_loglevel level)
 {
     rs_trace_level = level;
 }
-
-
-static void
-rs_log_va(int flags, char const *fn, char const *fmt, va_list va)
-{
-    int level = flags & RS_LOG_PRIMASK;
-    
-    if (rs_trace_impl && level <= rs_trace_level) {
-        char            buf[1000];
-        char            full_buf[1000];
-
-        vsnprintf(buf, sizeof buf - 1, fmt, va);
-
-        if (flags & RS_LOG_NONAME) {
-            snprintf(full_buf, sizeof full_buf - 1,
-                     "%s: %s%s\n",
-                     MY_NAME, rs_severities[level], buf);
-        } else {
-            snprintf(full_buf, sizeof full_buf - 1,
-                     "%s: %s(%s) %s\n",
-                     MY_NAME, rs_severities[level], fn, buf);
-        }
-
-	rs_trace_impl(level, full_buf);
-    }
-}
-
 
 
 /**
@@ -137,7 +163,7 @@ rs_log_va(int flags, char const *fn, char const *fmt, va_list va)
  * calling function name.
  */
 void
-rs_log0_nofn(int level, char const *fmt, ...)
+EXPORTABLE rs_log0_nofn(int level, char const *fmt, ...)
 {
     va_list         va;
 
@@ -150,7 +176,7 @@ rs_log0_nofn(int level, char const *fmt, ...)
 /* Called by a macro that prepends the calling function name,
  * etc.  */
 void
-rs_log0(int level, char const *fn, char const *fmt, ...)
+EXPORTABLE rs_log0(int level, char const *fn, char const *fmt, ...)
 {
     va_list         va;
 
@@ -161,19 +187,23 @@ rs_log0(int level, char const *fn, char const *fmt, ...)
 
 
 void
-rs_trace_stderr(rs_loglevel UNUSED(level), char const *msg)
+EXPORTABLE rs_trace_stderr(rs_loglevel UNUSED(level), char const *msg)
 {
     /* NOTE NO TRAILING NUL */
+#ifdef WIN32
+    fputs(msg, stderr);
+#else
     write(STDERR_FILENO, msg, strlen(msg));
+#endif
 }
 
 
 /* This is called directly if the machine doesn't allow varargs
  * macros. */
 void
-rs_fatal0(char const *s, ...)
+EXPORTABLE rs_fatal0(char const *s, ...)
 {
-    va_list	va;
+    va_list        va;
 
     va_start(va, s);
     rs_log_va(RS_LOG_CRIT, PACKAGE, s, va);
@@ -181,13 +211,24 @@ rs_fatal0(char const *s, ...)
     abort();
 }
 
+/* This is called directly if the machine doesn't allow varargs
+* macros. */
+void
+EXPORTABLE rs_debug0(char const *s, ...)
+{
+    va_list        va;
+
+    va_start(va, s);
+    rs_log_va(RS_LOG_DEBUG, PACKAGE, s, va);
+    va_end(va);
+}
 
 /* This is called directly if the machine doesn't allow varargs
  * macros. */
 void
-rs_error0(char const *s, ...)
+EXPORTABLE rs_error0(char const *s, ...)
 {
-    va_list	va;
+    va_list        va;
 
     va_start(va, s);
     rs_log_va(RS_LOG_ERR, PACKAGE, s, va);
@@ -198,24 +239,68 @@ rs_error0(char const *s, ...)
 /* This is called directly if the machine doesn't allow varargs
  * macros. */
 void
-rs_trace0(char const *s, ...)
+EXPORTABLE rs_trace0(char const *s, ...)
 {
 #ifdef DO_RS_TRACE
-    va_list	va;
+    va_list        va;
 
     va_start(va, s);
-    rs_log_va(RS_LOG_DEBUG, PACKAGE, s, va);
+    rs_log_va(RS_LOG_TRACE, PACKAGE, s, va);
     va_end(va);
 #endif /* !DO_RS_TRACE */
 }
 
 
-int
-rs_supports_trace(void)
+static void
+rs_log_va(int flags, char const *fn, char const *fmt, va_list va)
 {
-#ifdef DO_RS_TRACE
-    return 1;
-#else
-    return 0;
-#endif				/* !DO_RS_TRACE */
+    int level = flags & RS_LOG_PRIMASK;
+    
+    if (rs_trace_impl && level <= rs_trace_level) {
+        char            buf[1000];
+        char            full_buf[1000];
+        char timestamp[80];
+        rs_timestamp(timestamp, sizeof(timestamp));
+
+        vsnprintf(buf, sizeof buf - 1, fmt, va);
+
+        if (flags & RS_LOG_NONAME) {
+            snprintf(full_buf, sizeof full_buf - 1,
+                     "%s %10s %s\n", timestamp, rs_severities[level], buf);
+        } else {
+            snprintf(full_buf, sizeof full_buf - 1,
+                     "%s %10s [%s/%s] %s\n", timestamp, rs_severities[level]
+                     , MY_NAME, fn, buf);
+        }
+
+        rs_trace_impl(level, full_buf);
+    }
 }
+
+
+static char*
+rs_timestamp(char* buffer, int bufsz) {
+    //int millisec;
+    struct timeval tmnow;
+    struct tm *info;
+    char msec_buf[10];
+    static char mybuffer[80];
+    time_t long_time;
+    if (NULL == buffer) {
+        buffer = mybuffer;
+        bufsz = sizeof(mybuffer);
+    }
+
+    gettimeofday(&tmnow, NULL);
+    
+    time(&long_time);
+    info = localtime(&long_time);
+    strftime(buffer, bufsz, "%Y-%m-%d %H:%M:%S", info);
+    sprintf(msec_buf, ".%03d", ((int)tmnow.tv_usec)/1000);
+    strcat(buffer, msec_buf);
+    return buffer;
+}
+
+
+/* vim: expandtab shiftwidth=4
+ */

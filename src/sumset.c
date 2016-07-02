@@ -20,53 +20,52 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "config.h"
+#include "sumset.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
 
-#include "librsync.h"
-#include "sumset.h"
 #include "util.h"
-#include "trace.h"
 
 
 void
-rs_free_sumset(rs_signature_t * psums)
+EXPORTABLE rs_free_sumset(rs_signature_t * psums)
 {
-        if (psums->block_sigs)
-                free(psums->block_sigs);
+    if (psums->block_sigs)
+        free(psums->block_sigs);
 
-        if (psums->tag_table)
-		free(psums->tag_table);
+    if (psums->tag_table)
+        free(psums->tag_table);
 
-        if (psums->targets)
-                free(psums->targets);
+    if (psums->targets)
+        free(psums->targets);
 
-        rs_bzero(psums, sizeof *psums);
-        free(psums);
+    rs_bzero(psums, sizeof *psums);
+    free(psums);
 }
 
 
 void
 rs_sumset_dump(rs_signature_t const *sums)
 {
-        int i;
-        char        strong_hex[RS_MAX_STRONG_SUM_LENGTH * 3];
-    
-        rs_log(RS_LOG_INFO,
-                "sumset info: block_len=%d, file length=%lu, "
-                "number of chunks=%d, remainder=%d",
-                sums->block_len,
-                (unsigned long) sums->flength, sums->count,
-                sums->remainder);
+    int i;
+    char        strong_hex[RS_MAX_STRONG_SUM_LENGTH * 3];
 
-        for (i = 0; i < sums->count; i++) {
-                rs_hexify(strong_hex, sums->block_sigs[i].strong_sum,
-                          sums->strong_sum_len);
-                rs_log(RS_LOG_INFO,
-                        "sum %6d: weak=%08x, strong=%s",
-                        i, sums->block_sigs[i].weak_sum, strong_hex);
-        }
+    rs_log(RS_LOG_INFO,
+            "sumset info: block_len=%d, file length=%lu, "
+            "number of chunks=%d, remainder=%d",
+            sums->block_len,
+            (unsigned long) sums->flength, sums->count,
+            sums->remainder);
+
+    for (i = 0; i < sums->count; i++) {
+        rs_hexify(strong_hex, sums->block_sigs[i].strong_sum,
+                  sums->strong_sum_len);
+        rs_log(RS_LOG_INFO,
+                "sum %6d: weak=%08x, strong=%s",
+                i, sums->block_sigs[i].weak_sum, strong_hex);
+    }
 }
+
+/* vim: expandtab shiftwidth=4
+ */

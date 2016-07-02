@@ -19,5 +19,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_WHOLE_H_
+#define __LIBRSYNC_WHOLE_H_
+
+#include "librsync.h"
 
 rs_result rs_whole_run(rs_job_t *job, FILE *in_file, FILE *out_file);
+
+#endif /* __LIBRSYNC_WHOLE_H_ */
+
+/* vim: expandtab shiftwidth=4
+ */

@@ -19,8 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-#ifndef _ROLLSUM_H_
-#define _ROLLSUM_H_
+#ifndef __LIBRSYNC_ROLLSUM_H_
+#define __LIBRSYNC_ROLLSUM_H_
 
 /* We should make this something other than zero to improve the
  * checksum algorithm: tridge suggests a prime number. */
@@ -68,4 +68,7 @@ unsigned long RollsumDigest(Rollsum *sum);
 
 #define RollsumDigest(sum) (((sum)->s2 << 16) | ((sum)->s1 & 0xffff))
 
-#endif /* _ROLLSUM_H_ */
+#endif /* __LIBRSYNC_ROLLSUM_H_ */
+
+/* vim: expandtab shiftwidth=4
+ */

@@ -83,17 +83,13 @@
 /* TODO: Return errors rather than aborting if something goes wrong.  */
 
 
-#include "config.h"
+#include "stream.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-#include "librsync.h"
-#include "stream.h"
 #include "util.h"
-#include "trace.h"
 
 
 /**
@@ -150,3 +146,6 @@ void rs_buffers_check_exit(rs_buffers_t const *stream)
 {
     assert(stream->avail_in == 0  ||  stream->avail_out == 0);
 }
+
+/* vim: expandtab shiftwidth=4
+ */

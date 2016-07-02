@@ -18,20 +18,19 @@
  */
 
 
-#include "config.h"
+#include "librsync.h"
 
-#include <stdlib.h>
 #include <stdio.h>
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
 #ifdef HAVE_SYS_FILE_H
 #include <sys/file.h>
 #endif
-#include <string.h>
 
-#include "librsync.h"
-#include "trace.h"
+#include <string.h>
 
 /*
  * TODO: Other things to show in statistics:
@@ -44,7 +43,7 @@
  */
 
 int
-rs_log_stats(rs_stats_t const *stats)
+EXPORTABLE rs_log_stats(rs_stats_t const *stats)
 {
     char buf[1000];
 
@@ -111,3 +110,6 @@ rs_format_stats(rs_stats_t const * stats,
 
     return buf;
 }
+
+/* vim: expandtab shiftwidth=4
+ */

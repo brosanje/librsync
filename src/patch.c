@@ -25,16 +25,13 @@
                                */
 
 
-#include "config.h"
+#include "librsync.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "librsync.h"
 #include "util.h"
-#include "trace.h"
 #include "netint.h"
 #include "command.h"
 #include "sumset.h"
@@ -295,3 +292,6 @@ rs_patch_begin(rs_copy_cb *copy_cb, void *copy_arg)
 
     return job;
 }
+
+/* vim: expandtab shiftwidth=4
+ */

@@ -20,6 +20,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_MDFOUR_H_
+#define __LIBRSYNC_MDFOUR_H_
+
 #include "types.h"
 
 /** \private
@@ -35,3 +38,5 @@ struct rs_mdfour {
     int                 tail_len;
     unsigned char       tail[64];
 };
+
+#endif // __LIBRSYNC_MDFOUR_H_

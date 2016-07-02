@@ -20,13 +20,11 @@
  */
 
 
-#include "config.h"
+#include "librsync.h"
 
 #include <string.h>
-#include <stdlib.h>
 #include <stdio.h>
 
-#include "librsync.h"
 
 /*
  * Decode a base64 string in-place - simple and slow algorithm
@@ -98,3 +96,6 @@ rs_base64(unsigned char const *buf, int n, char *out)
     *out = 0;
 }
 
+
+/* vim: expandtab shiftwidth=4
+ */

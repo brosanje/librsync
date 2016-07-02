@@ -19,6 +19,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_TYPES_H_
+#define __LIBRSYNC_TYPES_H_
+
+#include "config.h"
+
 #define HAVE_UINT64 1 /* assume success, but might be undefined below */
 
 #if defined(HAVE_STDINT_H)
@@ -45,3 +50,8 @@
 #  undef HAVE_UINT64
 # endif
 #endif
+
+#endif // __LIBRSYNC_TYPES_H_
+
+/* vim: expandtab shiftwidth=4
+ */

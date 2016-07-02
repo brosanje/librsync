@@ -185,7 +185,7 @@ static rs_result rs_loadsig_s_magic(rs_job_t *job)
             job->magic = job->signature->magic = l;
             rs_trace("got signature magic %#10x", l);
             break;
-	default:
+        default:
             rs_error("wrong magic number %#10x for signature", l);
             return RS_BAD_MAGIC;
     }
@@ -206,3 +206,6 @@ rs_job_t *rs_loadsig_begin(rs_signature_t **signature)
 
     return job;
 }
+
+/* vim: expandtab shiftwidth=4
+ */

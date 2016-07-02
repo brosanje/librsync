@@ -33,14 +33,31 @@
  * \brief Public header for librsync.
  */
 
-#ifndef _RSYNC_H
-#define _RSYNC_H
+#ifndef __LIBRSYNC_LIBRSYNC_H_
+#define __LIBRSYNC_LIBRSYNC_H_
 
 #include <sys/types.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include "librsync-config.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
+#else
+#define inline __inline
+#endif
+
+#ifdef _MSC_VER
+// for windows
+// export symbols in dll
+#define EXPORTABLE __declspec(dllexport)
+#elif __GNUC__
+// gcc - also put -fvisibility=hidden
+// export symbols in so
+//#define EXPORTABLE __attribute__ ((dllexport))
+#define EXPORTABLE
 #endif
 
 /** Library version string.
@@ -103,7 +120,9 @@ typedef enum {
      *
      * \see rs_sig_begin()
      **/
-    RS_BLAKE2_SIG_MAGIC     = 0x72730137
+    RS_BLAKE2_SIG_MAGIC     = 0x72730137,
+
+    RS_DEFAULT_SIG_MAGIC    = RS_MD4_SIG_MAGIC
 } rs_magic_number;
 
 
@@ -123,7 +142,8 @@ typedef enum {
     RS_LOG_WARNING       = 4,   /**< Warning conditions */
     RS_LOG_NOTICE        = 5,   /**< Normal but significant condition */
     RS_LOG_INFO          = 6,   /**< Informational */
-    RS_LOG_DEBUG         = 7    /**< Debug-level messages */
+    RS_LOG_DEBUG         = 7,   /**< Debug-level messages */
+    RS_LOG_TRACE         = 8    /**< Trace-level messages */
 } rs_loglevel;
 
 
@@ -589,10 +609,30 @@ extern int rs_inbuflen, rs_outbuflen;
  *
  * \sa \ref api_whole
  */
+rs_result rs_sig_file_magic(FILE *old_file, FILE *sig_file,
+                      size_t block_len, size_t strong_len,
+                      rs_magic_number sig_magic,
+                      rs_stats_t *stats);
+
+/**
+ * Generate the signature of a basis file, and write it out to
+ * another.
+ *
+ * \param old_file Stdio readable file whose signature will be generated.
+ *
+ * \param sig_file Writable stdio file to which the signature will be written./
+ *
+ * \param block_len block size for signature generation, in bytes
+ *
+ * \param strong_len truncated length of strong checksums, in bytes
+ *
+ * \param stats Optional pointer to receive statistics.
+ *
+ * \sa \ref api_whole
+ */
 rs_result rs_sig_file(FILE *old_file, FILE *sig_file,
                       size_t block_len, size_t strong_len,
-              rs_magic_number sig_magic,
-              rs_stats_t *stats);
+                      rs_stats_t *stats);
 
 /**
  * Load signatures from a signature file into memory.  Return a
@@ -615,7 +655,6 @@ rs_result rs_file_copy_cb(void *arg, rs_long_t pos, size_t *len, void **buf);
  **/
 rs_result rs_delta_file(rs_signature_t *, FILE *new_file, FILE *delta_file, rs_stats_t *);
 
-
 /**
  * Apply a patch, relative to a basis, into a new file.
  * \sa \ref api_whole
@@ -627,4 +666,9 @@ rs_result rs_patch_file(FILE *basis_file, FILE *delta_file, FILE *new_file, rs_s
 }
 #endif
 
-#endif /* ! _RSYNC_H */
+#include "trace.h"
+
+#endif /* ! __LIBRSYNC_LIBRSYNC_H_ */
+
+/* vim: expandtab shiftwidth=4
+ */

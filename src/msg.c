@@ -34,12 +34,10 @@
                                | Arco, and have a nice day.
                                */
 
-#include "config.h"
+#include "librsync.h"
 
-#include <stdlib.h>
 #include <stdio.h>
 
-#include "librsync.h"
 
 /*
  * TODO: (Suggestion by tridge) Add a function which outputs a
@@ -48,7 +46,8 @@
  */
 
 
-char const *rs_strerror(rs_result r)
+char const *
+EXPORTABLE rs_strerror(rs_result r)
 {
     switch (r) {
     case RS_DONE:

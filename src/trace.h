@@ -1,5 +1,6 @@
 /*= -*- c-basic-offset: 4; indent-tabs-mode: nil; -*-
  *
+ *
  * librsync -- generate and apply network deltas
  *
  * Copyright (C) 2000, 2001, 2004 by Martin Pool <mbp@sourcefrog.net>
@@ -19,6 +20,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_TRACE_H_
+#define __LIBRSYNC_TRACE_H_
+
+#include "librsync.h"
 
 /*
  * TODO: A function like perror that includes strerror output.  Apache
@@ -34,7 +39,6 @@
  *
  * fatal terminates the whole process
  */
-
 
 
 /* There is no portable way in C99 to printf 64-bit types.  Many
@@ -74,11 +78,15 @@ void rs_log0(int level, char const *fn, char const *fmt, ...)
 
 #ifdef DO_RS_TRACE
 #  define rs_trace(fmt, arg...)                            \
-    do { rs_log0(RS_LOG_DEBUG, __FUNCTION__, fmt , ##arg);  \
+    do { rs_log0(RS_LOG_TRACE, __FUNCTION__, fmt , ##arg);  \
     } while (0)
 #else
 #  define rs_trace(fmt, arg...)
-#endif	/* !DO_RS_TRACE */
+#endif        /* !DO_RS_TRACE */
+
+#define rs_debug(s, str...) do {              \
+     rs_log0(RS_LOG_DEBUG, __FUNCTION__, (s) , ##str);  \
+     } while (0)
 
 #define rs_log(l, s, str...) do {              \
      rs_log0((l), __FUNCTION__, (s) , ##str);  \
@@ -92,29 +100,31 @@ void rs_log0(int level, char const *fn, char const *fmt, ...)
 
 #define rs_fatal(s, str...) do {               \
      rs_log0(RS_LOG_CRIT,  __FUNCTION__,       \
-	      (s) , ##str);                    \
+              (s) , ##str);                    \
      abort();                                  \
      } while (0)
 
 
 #else /************************* ! __GNUC__ */
 #  define rs_trace rs_trace0
+#  define rs_debug rs_debug0
 #  define rs_fatal rs_fatal0
 #  define rs_error rs_error0
 #  define rs_log   rs_log0_nofn
-#endif				/* ! __GNUC__ */
+#endif  /* ! __GNUC__ */
 
 void rs_trace0(char const *s, ...);
+void rs_debug0(char const *s, ...);
 void rs_fatal0(char const *s, ...);
 void rs_error0(char const *s, ...);
 void rs_log0(int level, char const *fn, char const *fmt, ...);
 void rs_log0_nofn(int level, char const *fmt, ...);
 
 enum {
-    RS_LOG_PRIMASK       = 7,   /**< Mask to extract priority
+    RS_LOG_PRIMASK       = 15,  /**< Mask to extract priority
                                    part. \internal */
 
-    RS_LOG_NONAME        = 8    /**< \b Don't show function name in
+    RS_LOG_NONAME        = 16   /**< \b Don't show function name in
                                    message. */
 };
 
@@ -129,7 +139,12 @@ enum {
 extern int rs_trace_level;
 
 #ifdef DO_RS_TRACE
-#  define rs_trace_enabled() ((rs_trace_level & RS_LOG_PRIMASK) >= RS_LOG_DEBUG)
+#  define rs_trace_enabled() ((rs_trace_level & RS_LOG_PRIMASK) >= RS_LOG_TRACE)
 #else
 #  define rs_trace_enabled() 0
 #endif
+
+#endif // __LIBRSYNC_TRACE_H_
+
+/* vim: expandtab shiftwidth=4
+ */

@@ -19,6 +19,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_JOB_H_
+#define __LIBRSYNC_JOB_H_
+
+#include "librsync.h"
 #include "mdfour.h"
 #include "rollsum.h"
 
@@ -104,3 +108,4 @@ rs_job_t * rs_job_new(const char *, rs_result (*statefn)(rs_job_t *));
 void rs_job_check(rs_job_t *job);
 
 int rs_job_input_is_ending(rs_job_t *job);
+#endif //  __LIBRSYNC_JOB_H_

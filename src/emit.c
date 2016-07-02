@@ -30,16 +30,12 @@
  */
 
 
-#include "config.h"
+#include "emit.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
 
-#include "librsync.h"
 #include "command.h"
-#include "trace.h"
-#include "emit.h"
 #include "prototab.h"
 #include "netint.h"
 #include "sumset.h"
@@ -152,3 +148,6 @@ rs_emit_end_cmd(rs_job_t *job)
     rs_trace("emit END, cmd_byte=%#x", cmd);
     rs_squirt_byte(job, cmd);
 }
+
+/* vim: expandtab shiftwidth=4
+ */

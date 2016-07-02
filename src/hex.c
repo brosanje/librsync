@@ -17,17 +17,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "config.h"
+#include "librsync.h"
 
 #include <assert.h>
 #include <sys/types.h>
+
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
-#include <stdlib.h>
+
 #include <stdio.h>
 
-#include "librsync.h"
 
 
 void
@@ -37,10 +37,13 @@ rs_hexify(char *to_buf, void const *from, int from_len)
     unsigned char const *from_buf = (unsigned char const *) from;
 
     while (from_len-- > 0) {
-	*(to_buf++) = hex_chars[((*from_buf) >> 4) & 0xf];
-	*(to_buf++) = hex_chars[(*from_buf) & 0xf];
-	from_buf++;
+        *(to_buf++) = hex_chars[((*from_buf) >> 4) & 0xf];
+        *(to_buf++) = hex_chars[(*from_buf) & 0xf];
+        from_buf++;
     }
 
     *to_buf = 0;
 }
+
+/* vim: expandtab shiftwidth=4
+ */

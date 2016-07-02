@@ -42,19 +42,16 @@
  */
 
 
-#include "config.h"
+#include "job.h"
 
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 #include <time.h>
 
-#include "librsync.h"
 #include "stream.h"
 #include "util.h"
 #include "sumset.h"
-#include "job.h"
-#include "trace.h"
 
 
 static const int rs_job_tag = 20010225;

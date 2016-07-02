@@ -45,9 +45,8 @@
  * identical.
  */
 
-#include "config.h"
+#include "librsync.h"
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -61,10 +60,8 @@
 #include <bzlib.h>
 #endif
 
-#include "librsync.h"
 #include "fileutil.h"
 #include "util.h"
-#include "trace.h"
 #include "isprefix.h"
 
 
@@ -263,7 +260,7 @@ static rs_result rdiff_sig(poptContext opcon)
         return RS_PARAM_ERROR;
     }
 
-    result = rs_sig_file(basis_file, sig_file, block_len, strong_len,
+    result = rs_sig_file_magic(basis_file, sig_file, block_len, strong_len,
                          sig_magic, &stats);
 
     rs_file_close(sig_file);
@@ -393,5 +390,5 @@ int main(const int argc, const char *argv[])
     return result;
 }
 
-/* vim: et sw=4
+/* vim: expandtab shiftwidth=4
  */

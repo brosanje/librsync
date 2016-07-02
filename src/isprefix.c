@@ -28,9 +28,9 @@ int
 isprefix(char const *tip, char const *iceberg)
 {
     while (*tip) {
-	if (*tip != *iceberg)
-	    return 0;
-	tip++; iceberg++;
+        if (*tip != *iceberg)
+            return 0;
+        tip++; iceberg++;
     }
 
     return 1;

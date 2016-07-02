@@ -33,16 +33,12 @@
  * we can just check that pointer.
  */
 
-#include "config.h"
+#include "search.h"
 
 #include <string.h>
-#include <stdlib.h>
 
-#include "librsync.h"
-#include "trace.h"
 #include "util.h"
 #include "sumset.h"
-#include "search.h"
 #include "checksum.h"
 
 #define TABLE_SIZE (1<<16)
@@ -108,7 +104,7 @@ static void heap_sort(rs_signature_t * sums) {
 }
 
 rs_result
-rs_build_hash_table(rs_signature_t * sums)
+EXPORTABLE rs_build_hash_table(rs_signature_t * sums)
 {
     int i;
 
@@ -244,3 +240,6 @@ rs_search_for_block(rs_weak_sum_t weak_sum,
 
     return !v;
 }
+
+/* vim: expandtab shiftwidth=4
+ */

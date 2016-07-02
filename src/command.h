@@ -20,6 +20,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_COMMAND_H_
+#define __LIBRSYNC_COMMAND_H_
 
 /*
  * command.h -- Types of commands present in the encoding stream.
@@ -54,4 +56,7 @@ typedef struct rs_op_kind_name {
 
 char const * rs_op_kind_name(enum rs_op_kind);
 
+#endif /* __LIBRSYNC_COMMAND_H_ */
 
+/* vim: expandtab shiftwidth=4
+ */

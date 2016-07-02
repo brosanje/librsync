@@ -67,9 +67,9 @@ int rs_inbuflen = 16000, rs_outbuflen = 16000;
 
 
 struct rs_filebuf {
-        FILE *f;
-        char            *buf;
-        size_t          buf_len;
+    FILE *f;
+    char            *buf;
+    size_t          buf_len;
 };
 
 
@@ -87,9 +87,9 @@ rs_filebuf_t *rs_filebuf_new(FILE *f, size_t buf_len)
 
 void rs_filebuf_free(rs_filebuf_t *fb)
 {
-	free(fb->buf);
-        rs_bzero(fb, sizeof *fb);
-        free(fb);
+    free(fb->buf);
+    rs_bzero(fb, sizeof *fb);
+    free(fb);
 }
 
 
@@ -225,3 +225,6 @@ rs_result rs_file_copy_cb(void *arg, rs_long_t pos, size_t *len, void **buf)
         return RS_DONE;
     }
 }
+
+/* vim: expandtab shiftwidth=4
+ */

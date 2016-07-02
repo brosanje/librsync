@@ -56,15 +56,12 @@
  */
 
 
-#include "config.h"
+#include "librsync.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-#include "librsync.h"
-#include "trace.h"
 #include "util.h"
 #include "job.h"
 #include "stream.h"
@@ -261,3 +258,6 @@ rs_tube_write(rs_job_t *job, const void *buf, size_t len)
     memcpy(job->write_buf + job->write_len, buf, len);
     job->write_len += len;
 }
+
+/* vim: expandtab shiftwidth=4
+ */

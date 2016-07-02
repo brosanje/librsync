@@ -26,6 +26,11 @@
                  * And sons who died on the Burma Railway. */
 
 
+#ifndef __LIBRSYNC_STREAM_H_
+#define __LIBRSYNC_STREAM_H_
+
+#include "librsync.h"
+
 int rs_buffers_is_empty(rs_buffers_t *stream);
 int rs_buffers_copy(rs_buffers_t *stream, int len);
 
@@ -43,3 +48,8 @@ rs_result rs_scoop_read(rs_job_t *, size_t len, void **ptr);
 rs_result rs_scoop_read_rest(rs_job_t *, size_t *len, void **ptr);
 size_t rs_scoop_total_avail(rs_job_t *job);
 void rs_scoop_input(rs_job_t *job, size_t len);
+
+#endif /* __LIBRSYNC_STREAM_H_ */
+
+/* vim: expandtab shiftwidth=4
+ */

@@ -19,6 +19,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+#ifndef __LIBRSYNC_NETINT_H_
+#define __LIBRSYNC_NETINT_H_
+
+#include "librsync.h"
 
 rs_result rs_squirt_byte(rs_job_t *, unsigned char d);
 rs_result rs_squirt_netint(rs_job_t *, rs_long_t d, int len);
@@ -29,3 +33,5 @@ rs_result rs_suck_byte(rs_job_t *, unsigned char *);
 rs_result rs_suck_n4(rs_job_t *, int *);
 
 int rs_int_len(rs_long_t val);
+
+#endif // __LIBRSYNC_NETINT_H_

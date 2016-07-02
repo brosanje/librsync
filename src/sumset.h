@@ -20,6 +20,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_SUMSET_H_
+#define __LIBRSYNC_SUMSET_H_
+
+#include "librsync.h"
 
 /*
  * TODO: These structures are not terribly useful.  Perhaps we need a
@@ -50,13 +54,13 @@ typedef struct rs_tag_table_entry {
  * search.
  */
 struct rs_signature {
-    rs_long_t       flength;	/* total file length */
-    int             count;      /* how many chunks */
-    int             remainder;	/* flength % block_length */
-    int             block_len;	/* block_length */
+    rs_long_t       flength;        /* total file length */
+    int             count;          /* how many chunks */
+    int             remainder;      /* flength % block_length */
+    int             block_len;      /* block_length */
     int             strong_sum_len;
-    rs_block_sig_t  *block_sigs; /* points to info for each chunk */
-    rs_tag_table_entry_t	*tag_table;
+    rs_block_sig_t  *block_sigs;    /* points to info for each chunk */
+    rs_tag_table_entry_t        *tag_table;
     rs_target_t     *targets;
     int             magic;
 };
@@ -67,7 +71,13 @@ struct rs_signature {
  * the last block which may be short.
  */
 struct rs_block_sig {
-    int             i;		/* index of this chunk */
-    rs_weak_sum_t   weak_sum;	/* simple checksum */
-    rs_strong_sum_t strong_sum;	/* checksum  */
+    int             i;            /* index of this chunk */
+    rs_weak_sum_t   weak_sum;     /* simple checksum */
+    rs_strong_sum_t strong_sum;   /* checksum  */
 };
+
+#endif // __LIBRSYNC_SUMSET_H_
+
+/* vim: expandtab shiftwidth=4
+ */
+

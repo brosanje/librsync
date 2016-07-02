@@ -23,3 +23,6 @@
 
 
 char const rs_librsync_version[] = (PACKAGE " " VERSION);
+
+/* vim: expandtab shiftwidth=4
+ */

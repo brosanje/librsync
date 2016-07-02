@@ -46,19 +46,13 @@
  * 64-bit integers, since there seems to be no ntohs() analog.
  */
 
-#include "config.h"
+#include "netint.h"
 
 #include <assert.h>
-#include <sys/types.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "librsync.h"
-
 #include "job.h"
-#include "netint.h"
-#include "trace.h"
 #include "stream.h"
 
 #define RS_MAX_INT_BYTES 8
@@ -182,3 +176,6 @@ int rs_int_len(rs_long_t val)
         return -1;
     }
 }
+
+/* vim: expandtab shiftwidth=4
+ */

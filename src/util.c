@@ -25,15 +25,12 @@
                                  */
 
 
-#include "config.h"
+#include "util.h"
 
-#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-#include "util.h"
 #include "librsync.h"
-#include "trace.h"
 
 void
 rs_bzero(void *buf, size_t size)
@@ -67,3 +64,6 @@ rs_alloc(size_t size, char const *name)
 
     return p;
 }
+
+/* vim: expandtab shiftwidth=4
+ */

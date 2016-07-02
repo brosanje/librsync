@@ -40,17 +40,13 @@
  *   (e.g. ia64, pa-risc).
  */
 
-#include "config.h"
+#include "mdfour.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 #include "librsync.h"
-#include "trace.h"
-#include "types.h"
-#include "mdfour.h"
-
 
 #define F(X,Y,Z) (((X)&(Y)) | ((~(X))&(Z)))
 #define G(X,Y,Z) (((X)&(Y)) | ((X)&(Z)) | ((Y)&(Z)))
@@ -185,7 +181,7 @@ copy4( /* @out@ */ unsigned char *out, uint32_t const x)
 
 
 /* We need this if there is a uint64 */
-/* --robert.weber@Colorado.edu	     */
+/* --robert.weber@Colorado.edu             */
 #ifdef HAVE_UINT64
 inline static void
 copy8( /* @out@ */ unsigned char *out, uint64_t const x)
@@ -333,7 +329,7 @@ rs_mdfour_update(rs_mdfour_t * md, void const *in_void, size_t n)
     md->totalN+=n;
 #else /* HAVE_UINT64 */
     if ((md->totalN_lo += n) < n)
-	md->totalN_hi++;
+        md->totalN_hi++;
 #endif /* HAVE_UINT64 */
 
     /* If there's any leftover data in the tail buffer, then first we have
@@ -383,3 +379,6 @@ rs_mdfour(unsigned char *out, void const *in, size_t n)
     rs_mdfour_update(&md, in, n);
     rs_mdfour_result(&md, out);
 }
+
+/* vim: expandtab shiftwidth=4
+ */
