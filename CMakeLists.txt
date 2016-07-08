@@ -307,8 +307,19 @@ if (BUILD_RDIFF)
       src/isprefix.c)
 
   add_executable(rdiff ${rdiff_SRCS})
+
   if (POPT_FOUND)
-    target_link_libraries(rdiff rsync ${POPT_LIBRARIES})
+    IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      # Mac OS X specific code
+      # the dynlib popt libraries contains a dependency for iconv
+      # but the static library does not, and will need a link time dependency for iconv
+      FIND_LIBRARY(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2)
+
+      target_link_libraries(rdiff rsync ${POPT_LIBRARIES} ${ICONV_LIBRARIES})
+    ELSE()
+      # linux doesn't need a -liconv
+      target_link_libraries(rdiff rsync ${POPT_LIBRARIES})
+    ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   else (POPT_FOUND)
     message (WARNING "Popt library is required for rdiff target")
   endif (POPT_FOUND)
