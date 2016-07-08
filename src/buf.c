@@ -38,18 +38,12 @@
  */
 
 
-#include "config.h"
-#include <sys/types.h>
+#include "buf.h"
 
 #include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
 #include <string.h>
 
-#include "librsync.h"
-#include "trace.h"
-#include "buf.h"
 #include "job.h"
 #include "util.h"
 
@@ -63,17 +57,11 @@
 /**
  * File IO buffer sizes.
  */
-int rs_inbuflen = 16000, rs_outbuflen = 16000;
+EXPORTABLE int rs_inbuflen = 16000;
+EXPORTABLE int rs_outbuflen = 16000;
 
 
-struct rs_filebuf {
-    FILE *f;
-    char            *buf;
-    size_t          buf_len;
-};
-
-
-rs_filebuf_t *rs_filebuf_new(FILE *f, size_t buf_len)
+rs_filebuf_t* rs_filebuf_new(FILE *f, size_t buf_len)
 {
     rs_filebuf_t *pf = rs_alloc_struct(rs_filebuf_t);
 

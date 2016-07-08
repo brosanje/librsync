@@ -25,7 +25,11 @@
 
 #include <stdlib.h>
 
-void * rs_alloc(size_t size, char const *name);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void *rs_alloc(size_t size, char const *name);
 void *rs_alloc_struct0(size_t size, char const *name);
 
 void rs_bzero(void *buf, size_t size);
@@ -45,6 +49,10 @@ void rs_bzero(void *buf, size_t size);
 #else                                /* !__GNUC__ && !__LCLINT__ */
 #  define UNUSED(x) x
 #endif                                /* !__GNUC__ && !__LCLINT__ */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LIBRSYNC_UTIL_H_ */
 

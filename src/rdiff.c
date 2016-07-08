@@ -235,13 +235,11 @@ static void rdiff_options(poptContext opcon)
  */
 static rs_result rdiff_sig(poptContext opcon)
 {
-    FILE            *basis_file, *sig_file;
+    const char*     basis_filename = poptGetArg(opcon);
+    const char*     sig_filename = poptGetArg(opcon);
     rs_stats_t      stats;
     rs_result       result;
     rs_long_t       sig_magic;
-
-    basis_file = rs_file_open(poptGetArg(opcon), "rb");
-    sig_file = rs_file_open(poptGetArg(opcon), "wb");
 
     rdiff_no_more_args(opcon);
 
@@ -252,6 +250,7 @@ static rs_result rdiff_sig(poptContext opcon)
          * sums are truncated to only 8 bytes, making them even weaker, but
          * making the signature file shorter.
          */
+
         if (!strong_len)
             strong_len = 8;
         sig_magic = RS_MD4_SIG_MAGIC;
@@ -260,11 +259,12 @@ static rs_result rdiff_sig(poptContext opcon)
         return RS_PARAM_ERROR;
     }
 
-    result = rs_sig_file_magic(basis_file, sig_file, block_len, strong_len,
+    //FILE* basis_file = rs_file_open(basis_filename, "rb");
+    //FILE* sig_file = rs_file_open(sig_filename, "wb");
+
+    result = rs_sig_filename_magic(basis_filename, sig_filename, block_len, strong_len,
                          sig_magic, &stats);
 
-    rs_file_close(sig_file);
-    rs_file_close(basis_file);
     if (result != RS_DONE)
         return result;
 
@@ -277,25 +277,22 @@ static rs_result rdiff_sig(poptContext opcon)
 
 static rs_result rdiff_delta(poptContext opcon)
 {
-    FILE            *sig_file, *new_file, *delta_file;
-    char const      *sig_name;
+    const char      *sig_filename = poptGetArg(opcon);
+    const char      *new_filename = poptGetArg(opcon);
+    const char      *delta_filename = poptGetArg(opcon);
     rs_result       result;
     rs_signature_t  *sumset;
     rs_stats_t      stats;
 
-    if (!(sig_name = poptGetArg(opcon))) {
+    if (!sig_filename) {
         rdiff_usage("Usage for delta: "
                     "rdiff [OPTIONS] delta SIGNATURE [NEWFILE [DELTA]]");
         return RS_SYNTAX_ERROR;
     }
 
-    sig_file = rs_file_open(sig_name, "rb");
-    new_file = rs_file_open(poptGetArg(opcon), "rb");
-    delta_file = rs_file_open(poptGetArg(opcon), "wb");
-
     rdiff_no_more_args(opcon);
 
-    result = rs_loadsig_file(sig_file, &sumset, &stats);
+    result = rs_loadsig_filename(sig_filename, &sumset, &stats);
     if (result != RS_DONE)
         return result;
 
@@ -305,13 +302,9 @@ static rs_result rdiff_delta(poptContext opcon)
     if ((result = rs_build_hash_table(sumset)) != RS_DONE)
         return result;
 
-    result = rs_delta_file(sumset, new_file, delta_file, &stats);
+    result = rs_delta_filename(sumset, new_filename, delta_filename, &stats);
 
     rs_free_sumset(sumset);
-
-    rs_file_close(delta_file);
-    rs_file_close(new_file);
-    rs_file_close(sig_file);
 
     if (show_stats)
         rs_log_stats(&stats);

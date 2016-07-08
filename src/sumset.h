@@ -23,7 +23,7 @@
 #ifndef __LIBRSYNC_SUMSET_H_
 #define __LIBRSYNC_SUMSET_H_
 
-#include "librsync.h"
+#include "librsync-config.h"
 
 /*
  * TODO: These structures are not terribly useful.  Perhaps we need a
@@ -63,8 +63,13 @@ struct rs_signature {
     rs_tag_table_entry_t        *tag_table;
     rs_target_t     *targets;
     int             magic;
+    int             block_sigs_size;
 };
 
+/**
+ * \typedef rs_signature_t
+ */
+typedef struct rs_signature rs_signature_t;
 
 /*
  * All blocks are the same length in the current algorithm except for
@@ -76,8 +81,25 @@ struct rs_block_sig {
     rs_strong_sum_t strong_sum;   /* checksum  */
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * Deep deallocation of checksums.
+ */
+void rs_free_sumset(rs_signature_t *);
+
+/**
+ * Dump signatures to the log.
+ */
+void rs_sumset_dump(rs_signature_t const *);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // __LIBRSYNC_SUMSET_H_
 
 /* vim: expandtab shiftwidth=4
  */
-

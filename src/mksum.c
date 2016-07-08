@@ -154,7 +154,7 @@ rs_job_t * rs_sig_begin(size_t new_block_len, size_t strong_sum_len,
     job->block_len = new_block_len;
 
     if (!sig_magic)
-        sig_magic = RS_BLAKE2_SIG_MAGIC;
+        sig_magic = RS_DEFAULT_SIG_MAGIC;
 
     switch (sig_magic) {
     case RS_BLAKE2_SIG_MAGIC:

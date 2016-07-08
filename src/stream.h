@@ -31,23 +31,33 @@
 
 #include "librsync.h"
 
-int rs_buffers_is_empty(rs_buffers_t *stream);
-int rs_buffers_copy(rs_buffers_t *stream, int len);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+// defined in tube.c
 int rs_tube_catchup(rs_job_t *);
-void rs_tube_write(rs_job_t *, void const *buf, size_t len);
-void rs_tube_copy(rs_job_t *, int len);
 int rs_tube_is_idle(rs_job_t const *);
-void rs_check_tube(rs_job_t *);
+void rs_tube_copy(rs_job_t *, int len);
+void rs_tube_write(rs_job_t *, void const *buf, size_t len);
+// void rs_check_tube(rs_job_t *); // not defined
 
+// defined in stream.c
+int rs_buffers_copy(rs_buffers_t *stream, int len);
+// int rs_buffers_is_empty(rs_buffers_t *stream); // not defined
 void rs_buffers_check_exit(rs_buffers_t const *);
 
+// defined in scoop.c
 void rs_scoop_advance(rs_job_t *, size_t len);
 rs_result rs_scoop_readahead(rs_job_t *, size_t len, void **ptr);
 rs_result rs_scoop_read(rs_job_t *, size_t len, void **ptr);
 rs_result rs_scoop_read_rest(rs_job_t *, size_t *len, void **ptr);
 size_t rs_scoop_total_avail(rs_job_t *job);
 void rs_scoop_input(rs_job_t *job, size_t len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LIBRSYNC_STREAM_H_ */
 

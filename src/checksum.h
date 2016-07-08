@@ -19,8 +19,15 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_CHECKSUM_H_
+#define __LIBRSYNC_CHECKSUM_H_
+
+#include "librsync.h"
+
 rs_weak_sum_t rs_calc_weak_sum(void const *buf1, int len);
 
+void rs_calc_strong_sum(void const *buf, size_t buf_len, rs_strong_sum_t *);
+int rs_calc_strong_sum_magic(void const *buf, size_t buf_len, rs_strong_sum_t *, int magic);
 void rs_calc_md4_sum(void const *buf, size_t buf_len, rs_strong_sum_t *);
 void rs_calc_blake2_sum(void const *buf, size_t buf_len, rs_strong_sum_t *);
 
@@ -28,3 +35,7 @@ void rs_calc_blake2_sum(void const *buf, size_t buf_len, rs_strong_sum_t *);
  * checksum algorithm: tridge suggests a prime number. */
 #define RS_CHAR_OFFSET 31
 
+#endif /* __LIBRSYNC_CHECKSUM_H_ */
+
+/* vim: expandtab shiftwidth=4
+ */

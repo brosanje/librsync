@@ -23,7 +23,7 @@
 #define __LIBRSYNC_JOB_H_
 
 #include "librsync.h"
-#include "mdfour.h"
+
 #include "rollsum.h"
 
 /**
@@ -102,10 +102,21 @@ struct rs_job {
     int             magic;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 rs_job_t * rs_job_new(const char *, rs_result (*statefn)(rs_job_t *));
 
 void rs_job_check(rs_job_t *job);
 
 int rs_job_input_is_ending(rs_job_t *job);
-#endif //  __LIBRSYNC_JOB_H_
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /*  __LIBRSYNC_JOB_H_ */
+
+/* vim: expandtab shiftwidth=4
+ */

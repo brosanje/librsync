@@ -24,7 +24,15 @@
 
 #include "librsync.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 rs_result rs_whole_run(rs_job_t *job, FILE *in_file, FILE *out_file);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LIBRSYNC_WHOLE_H_ */
 

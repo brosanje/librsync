@@ -42,6 +42,7 @@
 
 #include "librsync-config.h"
 #include "config.h"
+#include "sumset.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -276,35 +277,7 @@ typedef struct rs_stats {
 } rs_stats_t;
 
 
-/** \typedef struct rs_mdfour rs_mdfour_t
- *
- * \brief MD4 message-digest accumulator.
- *
- * \sa rs_mdfour(), rs_mdfour_begin(), rs_mdfour_update(),
- * rs_mdfour_result()
- */
-typedef struct rs_mdfour rs_mdfour_t;
-
 extern const int RS_MD4_SUM_LENGTH, RS_BLAKE2_SUM_LENGTH;
-
-#define RS_MAX_STRONG_SUM_LENGTH 32
-
-typedef unsigned int rs_weak_sum_t;
-typedef unsigned char rs_strong_sum_t[RS_MAX_STRONG_SUM_LENGTH];
-
-void            rs_mdfour(unsigned char *out, void const *in, size_t);
-void            rs_mdfour_begin(/* @out@ */ rs_mdfour_t * md);
-
-/**
- * Feed some data into the MD4 accumulator.
- *
- * \param md  MD4 accumulator.
- * \param in_void Data to add.
- * \param n   Number of bytes fed in.
- */
-void            rs_mdfour_update(rs_mdfour_t * md, void const *in_void,
-                 size_t n);
-void rs_mdfour_result(rs_mdfour_t * md, unsigned char *out);
 
 /**
  * \brief Return a human-readable representation of statistics.
@@ -328,22 +301,6 @@ char *rs_format_stats(rs_stats_t const *stats, char *buf, size_t size);
  * \see \ref api_trace
  */
 int rs_log_stats(rs_stats_t const *stats);
-
-
-/**
- * \typedef rs_signature_t
- */
-typedef struct rs_signature rs_signature_t;
-
-/**
- * Deep deallocation of checksums.
- */
-void rs_free_sumset(rs_signature_t *);
-
-/**
- * Dump signatures to the log.
- */
-void rs_sumset_dump(rs_signature_t const *);
 
 
 /**
@@ -618,6 +575,31 @@ rs_result rs_sig_file_magic(FILE *old_file, FILE *sig_file,
  * Generate the signature of a basis file, and write it out to
  * another.
  *
+ * \param basis_filename name of readable file whose signature will be generated.
+ *
+ * \param sig_file name of Writable file to which the signature will be written.
+ *
+ * \param block_len block size for signature generation, in bytes
+ *
+ * \param strong_len truncated length of strong checksums, in bytes
+ *
+ * \param sig_magic A signature magic number indicating
+ * what format to use.
+ *
+ * \param stats Optional pointer to receive statistics.
+ *
+ * \sa \ref api_whole
+ */
+rs_result rs_sig_filename_magic(const char *basis_filename, const char *sig_filename,
+                      size_t new_block_len,
+                      size_t strong_len,
+                      rs_magic_number sig_magic,
+                      rs_stats_t *stats);
+
+/**
+ * Generate the signature of a basis file, and write it out to
+ * another.
+ *
  * \param old_file Stdio readable file whose signature will be generated.
  *
  * \param sig_file Writable stdio file to which the signature will be written./
@@ -640,8 +622,10 @@ rs_result rs_sig_file(FILE *old_file, FILE *sig_file,
  *
  * \sa \ref api_whole
  */
-rs_result rs_loadsig_file(FILE *sig_file, rs_signature_t **sumset,
-    rs_stats_t *stats);
+rs_result rs_loadsig_file(FILE *sig_file, rs_signature_t **sumset
+    , rs_stats_t *stats);
+rs_result rs_loadsig_filename(const char *sig_name, rs_signature_t **sumset
+    , rs_stats_t *stats);
 
 /**
  * ::rs_copy_cb that reads from a stdio file.
@@ -655,6 +639,8 @@ rs_result rs_file_copy_cb(void *arg, rs_long_t pos, size_t *len, void **buf);
  **/
 rs_result rs_delta_file(rs_signature_t *, FILE *new_file, FILE *delta_file, rs_stats_t *);
 
+rs_result rs_delta_filename(rs_signature_t *, const char *new_file, const char *delta_file, rs_stats_t *);
+
 /**
  * Apply a patch, relative to a basis, into a new file.
  * \sa \ref api_whole
@@ -666,6 +652,7 @@ rs_result rs_patch_file(FILE *basis_file, FILE *delta_file, FILE *new_file, rs_s
 }
 #endif
 
+#include "mdfour.h"
 #include "trace.h"
 
 #endif /* ! __LIBRSYNC_LIBRSYNC_H_ */

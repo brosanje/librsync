@@ -25,6 +25,10 @@
 
 #include "librsync.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * TODO: A function like perror that includes strerror output.  Apache
  * does this by adding flags as well as the severity level which say
@@ -142,6 +146,10 @@ extern int rs_trace_level;
 #  define rs_trace_enabled() ((rs_trace_level & RS_LOG_PRIMASK) >= RS_LOG_TRACE)
 #else
 #  define rs_trace_enabled() 0
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // __LIBRSYNC_TRACE_H_

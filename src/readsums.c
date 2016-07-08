@@ -26,17 +26,14 @@
  * \brief Load signatures from a file.
  */
 
-#include "config.h"
+#include "librsync.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "librsync.h"
 #include "sumset.h"
 #include "job.h"
-#include "trace.h"
 #include "netint.h"
 #include "util.h"
 #include "stream.h"
@@ -59,8 +56,16 @@ static rs_result rs_loadsig_add_sum(rs_job_t *job, rs_strong_sum_t *strong)
     sig->count++;
     new_size = sig->count * sizeof(rs_block_sig_t);
 
-    sig->block_sigs = realloc(sig->block_sigs, new_size);
+    if (0 == sig->block_sigs_size && 0 < sig->flength) {
+        int nitems = (sig->flength - 3 * 4) / (sig->strong_sum_len + 4);
+        new_size = nitems * sizeof(rs_block_sig_t);
+    }
     
+    if (new_size > sig->block_sigs_size || NULL == sig->block_sigs) {
+        sig->block_sigs = realloc(sig->block_sigs, new_size);
+        sig->block_sigs_size = new_size;
+    }
+
     if (sig->block_sigs == NULL) {
         return RS_MEM_ERROR;
     }

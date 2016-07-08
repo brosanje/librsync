@@ -19,12 +19,38 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef __LIBRSYNC_BUF_H_
+#define __LIBRSYNC_BUF_H_
+
+#include "librsync.h"
+
+#include <stdio.h>
+
+struct rs_filebuf {
+    FILE *f;
+    char            *buf;
+    size_t          buf_len;
+};
+
 typedef struct rs_filebuf rs_filebuf_t;
 
-rs_filebuf_t *rs_filebuf_new(FILE *f, size_t buf_len);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void rs_filebuf_free(rs_filebuf_t *fb);
+extern int      rs_inbuflen;
+extern int      rs_outbuflen;
 
-rs_result rs_infilebuf_fill(rs_job_t *, rs_buffers_t *buf, void *fb);
+rs_filebuf_t*   rs_filebuf_new(FILE *f, size_t buf_len);
+void            rs_filebuf_free(rs_filebuf_t *fb);
+rs_result       rs_infilebuf_fill(rs_job_t *, rs_buffers_t *buf, void *fb);
+rs_result       rs_outfilebuf_drain(rs_job_t *, rs_buffers_t *, void *fb);
 
-rs_result rs_outfilebuf_drain(rs_job_t *, rs_buffers_t *, void *fb);
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __LIBRSYNC_BUF_H_ */
+
+/* vim: expandtab shiftwidth=4
+ */

@@ -15,9 +15,8 @@
  * librsync.
  */
 
-#pragma once
-#ifndef __BLAKE2_IMPL_H__
-#define __BLAKE2_IMPL_H__
+#ifndef __LIBRSYNC_BLAKE2_IMPL_H_
+#define __LIBRSYNC_BLAKE2_IMPL_H_
 
 #include <stdint.h>
 
@@ -138,5 +137,7 @@ static inline void secure_zero_memory( void *v, size_t n )
   while( n-- ) *p++ = 0;
 }
 
-#endif
+#endif /* __LIBRSYNC_BLAKE2_IMPL_H_ */
 
+/* vim: expandtab shiftwidth=4
+ */

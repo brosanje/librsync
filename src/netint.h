@@ -24,6 +24,10 @@
 
 #include "librsync.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 rs_result rs_squirt_byte(rs_job_t *, unsigned char d);
 rs_result rs_squirt_netint(rs_job_t *, rs_long_t d, int len);
 rs_result rs_squirt_n4(rs_job_t *, int val);
@@ -33,5 +37,9 @@ rs_result rs_suck_byte(rs_job_t *, unsigned char *);
 rs_result rs_suck_n4(rs_job_t *, int *);
 
 int rs_int_len(rs_long_t val);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __LIBRSYNC_NETINT_H_

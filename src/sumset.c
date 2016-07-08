@@ -25,8 +25,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "librsync.h"
 #include "util.h"
-
 
 void
 EXPORTABLE rs_free_sumset(rs_signature_t * psums)

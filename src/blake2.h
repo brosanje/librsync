@@ -10,9 +10,8 @@
    You should have received a copy of the CC0 Public Domain Dedication along with
    this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 */
-#pragma once
-#ifndef __BLAKE2_H__
-#define __BLAKE2_H__
+#ifndef __LIBRSYNC_BLAKE2_H_
+#define __LIBRSYNC_BLAKE2_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -152,5 +151,7 @@ extern "C" {
 }
 #endif
 
-#endif
+#endif /* __LIBRSYNC_BLAKE2_H_ */
 
+/* vim: expandtab shiftwidth=4
+ */

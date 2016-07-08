@@ -35,6 +35,10 @@ typedef struct _Rollsum {
     unsigned long s2;                  /* s2 part of sum */
 } Rollsum;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void RollsumUpdate(Rollsum *sum,const unsigned char *buf,unsigned int len);
 /* The following are implemented as macros.
 void RollsumInit(Rollsum *sum);
@@ -67,6 +71,10 @@ unsigned long RollsumDigest(Rollsum *sum);
 }
 
 #define RollsumDigest(sum) (((sum)->s2 << 16) | ((sum)->s1 & 0xffff))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LIBRSYNC_ROLLSUM_H_ */
 
