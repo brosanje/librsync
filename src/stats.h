@@ -2,7 +2,7 @@
  *
  * librsync -- the library for network deltas
  * 
- * Copyright (C) 2001 by Martin Pool <mbp@sourcefrog.net>
+ * Copyright (C) 2000, 2001 by Martin Pool <mbp@sourcefrog.net>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,14 +19,27 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __LIBRSYNC_WHOLE_H_
-#define __LIBRSYNC_WHOLE_H_
+#ifndef __LIBRSYNC_STATS_H_
+#define __LIBRSYNC_STATS_H_
 
 #include "librsync.h"
 
-rs_result rs_whole_run(rs_job_t *job, FILE *in_file, FILE *out_file);
+/**
+ * \brief Return a human-readable representation of statistics.
+ *
+ * The string is truncated if it does not fit.  100 characters should
+ * be sufficient space.
+ *
+ * \param stats Statistics from an encoding or decoding operation.
+ *
+ * \param buf Buffer to receive result.
+ * \param size Size of buffer.
+ * \return \p buf.
+ * \see \ref api_stats
+ */
+char* rs_format_stats(rs_stats_t const * stats, char *buf, size_t size);
 
-#endif /* __LIBRSYNC_WHOLE_H_ */
+#endif /* !__LIBRSYNC_STATS_H_ */
 
 /* vim: expandtab shiftwidth=4 tabstop=4 sts=4
- */
+*/

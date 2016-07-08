@@ -49,11 +49,10 @@
  *
  * \param fopen-style mode string.
  */
-FILE *
-EXPORTABLE rs_file_open(char const *filename, char const *mode)
+EXPORTABLE FILE* rs_file_open(char const *filename, char const *mode)
 {
     FILE           *f;
-    int                    is_write;
+    int            is_write;
 
     is_write = mode[0] == 'w';
 
@@ -81,12 +80,11 @@ EXPORTABLE rs_file_open(char const *filename, char const *mode)
     return f;
 }
 
-int
-EXPORTABLE rs_file_close(FILE * f)
+EXPORTABLE int rs_file_close(FILE * f)
 {
     if ((f == stdin) || (f == stdout)) return 0;
     return fclose(f);
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

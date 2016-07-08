@@ -70,5 +70,5 @@ unsigned long RollsumDigest(Rollsum *sum);
 
 #endif /* __LIBRSYNC_ROLLSUM_H_ */
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

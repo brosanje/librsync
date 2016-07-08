@@ -18,7 +18,7 @@
  */
 
 
-#include "librsync.h"
+#include "stats.h"
 
 #include <stdio.h>
 
@@ -42,8 +42,7 @@
  * Number of blocks.
  */
 
-int
-EXPORTABLE rs_log_stats(rs_stats_t const *stats)
+EXPORTABLE int rs_log_stats(rs_stats_t const *stats)
 {
     char buf[1000];
 
@@ -51,8 +50,6 @@ EXPORTABLE rs_log_stats(rs_stats_t const *stats)
     rs_log(RS_LOG_INFO|RS_LOG_NONAME, "%s", buf);
     return 0;
 }
-
-
 
 char *
 rs_format_stats(rs_stats_t const * stats,
@@ -111,5 +108,5 @@ rs_format_stats(rs_stats_t const * stats,
     return buf;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

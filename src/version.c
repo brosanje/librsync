@@ -19,10 +19,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "config.h"
-
+#include "librsync.h"
 
 char const rs_librsync_version[] = (PACKAGE " " VERSION);
+EXPORTABLE const char* rs_get_librsync_version() { return rs_librsync_version; }
 
-/* vim: expandtab shiftwidth=4
+char const rs_licence_string[] = "";
+EXPORTABLE const char* rs_get_licence_string() { return rs_licence_string; }
+
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

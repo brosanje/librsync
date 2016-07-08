@@ -65,5 +65,5 @@ rs_alloc(size_t size, char const *name)
     return p;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

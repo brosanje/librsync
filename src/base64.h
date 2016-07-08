@@ -2,7 +2,7 @@
  *
  * librsync -- the library for network deltas
  * 
- * Copyright (C) 2001 by Martin Pool <mbp@sourcefrog.net>
+ * Copyright (C) 2000, 2001 by Martin Pool <mbp@sourcefrog.net>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,14 +19,24 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __LIBRSYNC_WHOLE_H_
-#define __LIBRSYNC_WHOLE_H_
+#ifndef __LIBRSYNC_BASE64_H_
+#define __LIBRSYNC_BASE64_H_
 
-#include "librsync.h"
+#include <sys/types.h>
 
-rs_result rs_whole_run(rs_job_t *job, FILE *in_file, FILE *out_file);
+/*
+ * Decode a base64 string in-place - simple and slow algorithm
+ * 
+ * See RFC1521 for the specification of base64.
+ */
+size_t rs_unbase64(char *s);
 
-#endif /* __LIBRSYNC_WHOLE_H_ */
+/*
+ * Encode a buffer as base64 - simple and slow algorithm.
+ */
+void rs_base64(unsigned char const *buf, int n, char *out);
+
+#endif /* !__LIBRSYNC_BASE64_H_ */
 
 /* vim: expandtab shiftwidth=4 tabstop=4 sts=4
- */
+*/

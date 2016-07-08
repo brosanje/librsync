@@ -22,9 +22,11 @@
 #ifndef __LIBRSYNC_FILEUTIL_H_
 #define __LIBRSYNC_FILEUTIL_H_
 
+#include "librsync-config.h"
+
 #include <stdio.h>
 
-FILE * rs_file_open(char const *filename, char const * mode);
-int rs_file_close(FILE * file);
+EXPORTABLE FILE* rs_file_open(char const *filename, char const * mode);
+EXPORTABLE int rs_file_close(FILE * file);
 
 #endif // __LIBRSYNC_FILEUTIL_H_

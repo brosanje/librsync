@@ -2,7 +2,7 @@
  *
  * librsync -- the library for network deltas
  * 
- * Copyright (C) 2001 by Martin Pool <mbp@sourcefrog.net>
+ * Copyright (C) 2000, 2001 by Martin Pool <mbp@sourcefrog.net>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,14 +19,33 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __LIBRSYNC_WHOLE_H_
-#define __LIBRSYNC_WHOLE_H_
+#ifndef __LIBRSYNC_MKSUM_H_
+#define __LIBRSYNC_MKSUM_H_
 
 #include "librsync.h"
 
-rs_result rs_whole_run(rs_job_t *job, FILE *in_file, FILE *out_file);
+/**
+ * \brief Start generating a signature.
+ *
+ * \return A new rs_job_t into which the old file data can be passed.
+ *
+ * \param sig_magic Indicates the version of signature file format to generate.
+ * See ::rs_magic_number.
+ *
+ * \param new_block_len Size of checksum blocks.  Larger values make the
+ * signature shorter, and the delta longer.
+ *
+ * \param strong_sum_len If non-zero, truncate the strong signatures to this
+ * many bytes, to make the signature shorter.  It's recommended you leave this
+ * at zero to get the full strength.
+ *
+ * \sa rs_sig_file()
+ */
+rs_job_t *rs_sig_begin(size_t new_block_len,
+                       size_t strong_sum_len,
+                       rs_magic_number sig_magic);
 
-#endif /* __LIBRSYNC_WHOLE_H_ */
+#endif /* !__LIBRSYNC_MKSUM_H_ */
 
 /* vim: expandtab shiftwidth=4 tabstop=4 sts=4
- */
+*/

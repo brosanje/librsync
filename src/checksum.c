@@ -29,6 +29,7 @@
 
 #include "librsync.h"
 #include "checksum.h"
+#include "mdfour.h"
 #include "blake2.h"
 
 

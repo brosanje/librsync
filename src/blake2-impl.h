@@ -19,13 +19,15 @@
 #ifndef __BLAKE2_IMPL_H__
 #define __BLAKE2_IMPL_H__
 
+#include "librsync-config.h"
+
 #include <stdint.h>
 
 #ifndef WORDS_BIGENDIAN /* from librsync config.h */
 #  define NATIVE_LITTLE_ENDIAN
 #endif /* ndef WORDS_BIGENDIAN */
 
-static inline uint32_t load32( const void *src )
+static inline uint32_t load32(const void *src)
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
   return *( const uint32_t * )( src );

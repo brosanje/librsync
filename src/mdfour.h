@@ -23,6 +23,8 @@
 #ifndef __LIBRSYNC_MDFOUR_H_
 #define __LIBRSYNC_MDFOUR_H_
 
+#include <sys/types.h>
+
 #include "types.h"
 
 /** \private
@@ -38,5 +40,27 @@ struct rs_mdfour {
     int                 tail_len;
     unsigned char       tail[64];
 };
+
+/** \typedef struct rs_mdfour rs_mdfour_t
+ *
+ * \brief MD4 message-digest accumulator.
+ *
+ * \sa rs_mdfour(), rs_mdfour_begin(), rs_mdfour_update(),
+ * rs_mdfour_result()
+ */
+typedef struct rs_mdfour rs_mdfour_t;
+
+void            rs_mdfour(unsigned char *out, void const *in, size_t);
+void            rs_mdfour_begin(/* @out@ */ rs_mdfour_t * md);
+
+/**
+ * Feed some data into the MD4 accumulator.
+ *
+ * \param md  MD4 accumulator.
+ * \param in_void Data to add.
+ * \param n   Number of bytes fed in.
+ */
+void rs_mdfour_update(rs_mdfour_t * md, void const *in_void, size_t n);
+void rs_mdfour_result(rs_mdfour_t * md, unsigned char *out);
 
 #endif // __LIBRSYNC_MDFOUR_H_

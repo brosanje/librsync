@@ -64,7 +64,6 @@
 #include "util.h"
 #include "isprefix.h"
 
-
 #define PROGRAM "rdiff"
 
 static size_t block_len = RS_DEFAULT_BLOCK_LEN;
@@ -77,17 +76,16 @@ static int gzip_level  = 0;
 
 
 enum {
-    OPT_GZIP = 1069, OPT_BZIP2
+    OPT_GZIP = 1069, OPT_BZIP2, OPT_INBUFLEN, OPT_OUTBUFLEN, OPT_ROLL_PARANOIA
 };
 
-extern int rs_roll_paranoia;
 char *rs_hash_name;
 
 const struct poptOption opts[] = {
     { "verbose",     'v', POPT_ARG_NONE, 0,             'v' },
     { "version",     'V', POPT_ARG_NONE, 0,             'V' },
-    { "input-size",  'I', POPT_ARG_INT,  &rs_inbuflen },
-    { "output-size", 'O', POPT_ARG_INT,  &rs_outbuflen },
+    { "input-size",  'I', POPT_ARG_INT,  0,             OPT_INBUFLEN },
+    { "output-size", 'O', POPT_ARG_INT,  0,             OPT_OUTBUFLEN },
     { "hash",        'H', POPT_ARG_STRING, &rs_hash_name },
     { "help",        '?', POPT_ARG_NONE, 0,             'h' },
     {  0,            'h', POPT_ARG_NONE, 0,             'h' },
@@ -97,7 +95,7 @@ const struct poptOption opts[] = {
     { "stats",        0,  POPT_ARG_NONE, &show_stats },
     { "gzip",        'z', POPT_ARG_NONE, 0,             OPT_GZIP },
     { "bzip2",       'i', POPT_ARG_NONE, 0,             OPT_BZIP2 },
-    { "paranoia",     0,  POPT_ARG_NONE, &rs_roll_paranoia },
+    { "paranoia",     0,  POPT_ARG_NONE, 0,             OPT_ROLL_PARANOIA },
     { 0 }
 };
 
@@ -180,7 +178,7 @@ static void rdiff_show_version(void)
            "You may redistribute copies of librsync under the terms of the GNU\n"
            "Lesser General Public License.  For more information about these\n"
            "matters, see the files named COPYING.\n",
-           rs_librsync_version,
+           rs_get_librsync_version(),
            (long) (8 * sizeof(rs_long_t)), zlib, bzlib, trace);
 }
 
@@ -204,6 +202,27 @@ static void rdiff_options(poptContext opcon)
                 rs_error("library does not support trace");
             }
             rs_trace_set_level(RS_LOG_DEBUG);
+            break;
+
+        case OPT_INBUFLEN:
+            if ((a = poptGetOptArg(opcon))) {
+                int l = atoi(a);
+                rs_set_inbuflen(l);
+            }
+            break;
+
+        case OPT_OUTBUFLEN:
+            if ((a = poptGetOptArg(opcon))) {
+                int l = atoi(a);
+                rs_set_outbuflen(l);
+            }
+            break;
+
+        case OPT_ROLL_PARANOIA:
+            if ((a = poptGetOptArg(opcon))) {
+                int l = atoi(a);
+                rs_set_roll_paranoia(l);
+            }
             break;
 
         case OPT_GZIP:
@@ -390,5 +409,5 @@ int main(const int argc, const char *argv[])
     return result;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

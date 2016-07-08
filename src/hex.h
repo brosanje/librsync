@@ -2,7 +2,7 @@
  *
  * librsync -- the library for network deltas
  * 
- * Copyright (C) 2001 by Martin Pool <mbp@sourcefrog.net>
+ * Copyright (C) 2000, 2001 by Martin Pool <mbp@sourcefrog.net>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,14 +19,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __LIBRSYNC_WHOLE_H_
-#define __LIBRSYNC_WHOLE_H_
+#ifndef __LIBRSYNC_HEX_H_
+#define __LIBRSYNC_HEX_H_
 
-#include "librsync.h"
+/**
+ * Convert \p from_len bytes at \p from_buf into a hex representation in
+ * \p to_buf, which must be twice as long plus one byte for the null
+ * terminator.
+ */
+void     rs_hexify(char *to_buf, void const *from_buf, int from_len);
 
-rs_result rs_whole_run(rs_job_t *job, FILE *in_file, FILE *out_file);
-
-#endif /* __LIBRSYNC_WHOLE_H_ */
+#endif /* !__LIBRSYNC_HEX_H_ */
 
 /* vim: expandtab shiftwidth=4 tabstop=4 sts=4
- */
+*/

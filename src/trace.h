@@ -113,12 +113,12 @@ void rs_log0(int level, char const *fn, char const *fmt, ...)
 #  define rs_log   rs_log0_nofn
 #endif  /* ! __GNUC__ */
 
-void rs_trace0(char const *s, ...);
-void rs_debug0(char const *s, ...);
-void rs_fatal0(char const *s, ...);
-void rs_error0(char const *s, ...);
-void rs_log0(int level, char const *fn, char const *fmt, ...);
-void rs_log0_nofn(int level, char const *fmt, ...);
+EXPORTABLE void rs_trace0(char const *s, ...);
+EXPORTABLE void rs_debug0(char const *s, ...);
+EXPORTABLE void rs_fatal0(char const *s, ...);
+EXPORTABLE void rs_error0(char const *s, ...);
+EXPORTABLE void rs_log0(int level, char const *fn, char const *fmt, ...);
+EXPORTABLE void rs_log0_nofn(int level, char const *fmt, ...);
 
 enum {
     RS_LOG_PRIMASK       = 15,  /**< Mask to extract priority
@@ -146,5 +146,5 @@ extern int rs_trace_level;
 
 #endif // __LIBRSYNC_TRACE_H_
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

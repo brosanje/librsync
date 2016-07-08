@@ -35,5 +35,5 @@ void rs_emit_copy_cmd(rs_job_t *job, rs_long_t where, rs_long_t len);
 
 #endif // __LIBRSYNC_EMIT_H_
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

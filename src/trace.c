@@ -103,7 +103,7 @@ static char* rs_timestamp(char* buffer, int bufsz);
 static void  rs_log_va(int level, char const *fn, char const *fmt, va_list va);
 
 #if SIZEOF_SIZE_T > SIZEOF_LONG
-#  warning size_t is larger than a long integer, values in trace messages may be wrong
+#   pragma message WARN("size_t is larger than a long integer, values in trace messages may be wrong")
 #endif
 
 
@@ -302,5 +302,5 @@ rs_timestamp(char* buffer, int bufsz) {
 }
 
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

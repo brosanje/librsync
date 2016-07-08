@@ -44,6 +44,9 @@
 #include "job.h"
 #include "buf.h"
 #include "util.h"
+#include "mksum.h"
+#include "delta.h"
+
 
 /**
  * Run a job continuously, with input to/from the two specified files.
@@ -86,8 +89,7 @@ rs_whole_run(rs_job_t *job, FILE *in_file, FILE *out_file)
 
 
 
-rs_result
-EXPORTABLE rs_sig_file_magic(FILE *old_file, FILE *sig_file, size_t new_block_len,
+EXPORTABLE rs_result rs_sig_file_magic(FILE *old_file, FILE *sig_file, size_t new_block_len,
             size_t strong_len,
             rs_magic_number sig_magic,
             rs_stats_t *stats)
@@ -105,16 +107,14 @@ EXPORTABLE rs_sig_file_magic(FILE *old_file, FILE *sig_file, size_t new_block_le
 }
 
 
-rs_result
-EXPORTABLE rs_sig_file(FILE *old_file, FILE *sig_file, size_t new_block_len,
+EXPORTABLE rs_result rs_sig_file(FILE *old_file, FILE *sig_file, size_t new_block_len,
             size_t strong_len, rs_stats_t *stats)
 {
     return rs_sig_file_magic(old_file, sig_file, new_block_len, strong_len, RS_DEFAULT_SIG_MAGIC, stats);
 }
 
 
-rs_result
-EXPORTABLE rs_loadsig_file(FILE *sig_file, rs_signature_t **sumset, rs_stats_t *stats)
+EXPORTABLE rs_result rs_loadsig_file(FILE *sig_file, rs_signature_t **sumset, rs_stats_t *stats)
 {
     rs_job_t            *job;
     rs_result           r;
@@ -130,8 +130,7 @@ EXPORTABLE rs_loadsig_file(FILE *sig_file, rs_signature_t **sumset, rs_stats_t *
 
 
 
-rs_result
-EXPORTABLE rs_delta_file(rs_signature_t *sig, FILE *new_file, FILE *delta_file,
+EXPORTABLE rs_result rs_delta_file(rs_signature_t *sig, FILE *new_file, FILE *delta_file,
               rs_stats_t *stats)
 {
     rs_job_t            *job;
@@ -150,8 +149,7 @@ EXPORTABLE rs_delta_file(rs_signature_t *sig, FILE *new_file, FILE *delta_file,
 }
 
 
-rs_result
-EXPORTABLE rs_patch_file(FILE *basis_file, FILE *delta_file, FILE *new_file,
+EXPORTABLE rs_result rs_patch_file(FILE *basis_file, FILE *delta_file, FILE *new_file,
                         rs_stats_t *stats)
 {
     rs_job_t            *job;
@@ -169,5 +167,5 @@ EXPORTABLE rs_patch_file(FILE *basis_file, FILE *delta_file, FILE *new_file,
     return r;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

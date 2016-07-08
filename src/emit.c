@@ -149,5 +149,5 @@ rs_emit_end_cmd(rs_job_t *job)
     rs_squirt_byte(job, cmd);
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

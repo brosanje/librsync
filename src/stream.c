@@ -147,5 +147,5 @@ void rs_buffers_check_exit(rs_buffers_t const *stream)
     assert(stream->avail_in == 0  ||  stream->avail_out == 0);
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

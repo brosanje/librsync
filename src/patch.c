@@ -293,5 +293,5 @@ rs_patch_begin(rs_copy_cb *copy_cb, void *copy_arg)
     return job;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

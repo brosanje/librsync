@@ -51,5 +51,5 @@ void rs_scoop_input(rs_job_t *job, size_t len);
 
 #endif /* __LIBRSYNC_STREAM_H_ */
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

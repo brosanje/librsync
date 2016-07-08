@@ -2,7 +2,7 @@
  *
  * librsync -- the library for network deltas
  * 
- * Copyright (C) 2001 by Martin Pool <mbp@sourcefrog.net>
+ * Copyright (C) 2000, 2001 by Martin Pool <mbp@sourcefrog.net>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -19,14 +19,20 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __LIBRSYNC_WHOLE_H_
-#define __LIBRSYNC_WHOLE_H_
+#ifndef __LIBRSYNC_DELTA_H_
+#define __LIBRSYNC_DELTA_H_
 
 #include "librsync.h"
 
-rs_result rs_whole_run(rs_job_t *job, FILE *in_file, FILE *out_file);
+/**
+ * Prepare to compute a streaming delta.
+ *
+ * \todo Add a version of this that takes a ::rs_magic_number controlling the
+ * delta format.
+ **/
+rs_job_t *rs_delta_begin(rs_signature_t *);
 
-#endif /* __LIBRSYNC_WHOLE_H_ */
+#endif /* !__LIBRSYNC_DELTA_H_ */
 
 /* vim: expandtab shiftwidth=4 tabstop=4 sts=4
- */
+*/

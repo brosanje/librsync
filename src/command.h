@@ -58,5 +58,5 @@ char const * rs_op_kind_name(enum rs_op_kind);
 
 #endif /* __LIBRSYNC_COMMAND_H_ */
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

@@ -25,59 +25,14 @@
 
 #include "librsync.h"
 
-/*
- * TODO: These structures are not terribly useful.  Perhaps we need a
- * splay tree or something that will let us smoothly grow as data is
- * read in.
- */
-
-
 /**
- * \brief Description of the match described by a signature.
+ * Dump signatures to the log.
  */
-typedef struct rs_target {
-    unsigned short  t;
-    int             i;
-} rs_target_t;
+void rs_sumset_dump(rs_signature_t const *);
 
-typedef struct rs_block_sig rs_block_sig_t;
-
-typedef struct rs_tag_table_entry {
-    int l; // left bound of the hash tag in sorted array of targets
-    int r; // right bound of the hash tag in sorted array of targets
-    // all tags between l and r inclusively are the same
-} rs_tag_table_entry_t ;
-
-/*
- * This structure describes all the sums generated for an instance of
- * a file.  It incorporates some redundancy to make it easier to
- * search.
- */
-struct rs_signature {
-    rs_long_t       flength;        /* total file length */
-    int             count;          /* how many chunks */
-    int             remainder;      /* flength % block_length */
-    int             block_len;      /* block_length */
-    int             strong_sum_len;
-    rs_block_sig_t  *block_sigs;    /* points to info for each chunk */
-    rs_tag_table_entry_t        *tag_table;
-    rs_target_t     *targets;
-    int             magic;
-};
-
-
-/*
- * All blocks are the same length in the current algorithm except for
- * the last block which may be short.
- */
-struct rs_block_sig {
-    int             i;            /* index of this chunk */
-    rs_weak_sum_t   weak_sum;     /* simple checksum */
-    rs_strong_sum_t strong_sum;   /* checksum  */
-};
 
 #endif // __LIBRSYNC_SUMSET_H_
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */
 

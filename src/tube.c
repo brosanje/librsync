@@ -259,5 +259,5 @@ rs_tube_write(rs_job_t *job, const void *buf, size_t len)
     job->write_len += len;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

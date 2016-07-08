@@ -53,5 +53,5 @@
 
 #endif // __LIBRSYNC_TYPES_H_
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

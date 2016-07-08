@@ -19,12 +19,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "base64.h"
 
-#include "librsync.h"
-
+#include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-
 
 /*
  * Decode a base64 string in-place - simple and slow algorithm
@@ -68,8 +66,7 @@ size_t rs_unbase64(char *s)
 void
 rs_base64(unsigned char const *buf, int n, char *out)
 {
-    char const *b64 =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    char const *b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     int             bytes, i;
 
     /* work out how many bytes of output there are */
@@ -97,5 +94,5 @@ rs_base64(unsigned char const *buf, int n, char *out)
 }
 
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */
