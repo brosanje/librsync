@@ -23,6 +23,10 @@
 #ifndef __LIBRSYNC_COMMAND_H_
 #define __LIBRSYNC_COMMAND_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * command.h -- Types of commands present in the encoding stream.
  *
@@ -56,7 +60,11 @@ typedef struct rs_op_kind_name {
 
 char const * rs_op_kind_name(enum rs_op_kind);
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* __LIBRSYNC_COMMAND_H_ */
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

@@ -37,7 +37,7 @@
  * will be OK at the moment, though, because tails are only used if
  * necessary. */
 
-#include "librsync.h"
+#include "mksum.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -48,14 +48,12 @@
 #include "job.h"
 #include "netint.h"
 #include "checksum.h"
-
+#include "hex.h"
 
 /* Possible state functions for signature generation. */
 static rs_result rs_sig_s_header(rs_job_t *);
 static rs_result rs_sig_s_generate(rs_job_t *);
 
-
-                                           
 /**
  * State of trying to send the signature header.
  * \private
@@ -180,5 +178,5 @@ rs_job_t * rs_sig_begin(size_t new_block_len, size_t strong_sum_len,
     return job;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

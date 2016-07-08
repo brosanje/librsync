@@ -40,35 +40,23 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "librsync-config.h"
 #include "config.h"
-#include "sumset.h"
+#include "librsync-config.h"
 
 #ifdef __cplusplus
 extern "C" {
-#else
-#define inline __inline
-#endif
-
-#ifdef _MSC_VER
-// for windows
-// export symbols in dll
-#define EXPORTABLE __declspec(dllexport)
-#elif __GNUC__
-// gcc - also put -fvisibility=hidden
-// export symbols in so
-//#define EXPORTABLE __attribute__ ((dllexport))
-#define EXPORTABLE
 #endif
 
 /** Library version string.
  * \see \ref versioning
  */
 extern char const rs_librsync_version[];
+EXPORTABLE const char* rs_get_librsync_version();
 
 /** Summary of the licence for librsync.
  */
 extern char const rs_licence_string[];
+EXPORTABLE const char* rs_get_license_string();
 
 typedef unsigned char rs_byte_t;
 
@@ -161,18 +149,18 @@ typedef void    rs_trace_fn_t(rs_loglevel level, char const *msg);
  * Set the least important message severity that will be output.
  * \sa \ref api_trace
  */
-void            rs_trace_set_level(rs_loglevel level);
+EXPORTABLE void rs_trace_set_level(rs_loglevel level);
 
 /** Set trace callback.
  * \sa \ref api_trace
  */
-void            rs_trace_to(rs_trace_fn_t *);
+EXPORTABLE void rs_trace_to(rs_trace_fn_t *);
 
 /** Default trace callback that writes to stderr.  Implements
  * ::rs_trace_fn_t, and may be passed to rs_trace_to().
  * \sa \ref api_trace
  */
-void            rs_trace_stderr(rs_loglevel level, char const *msg);
+EXPORTABLE void rs_trace_stderr(rs_loglevel level, char const *msg);
 
 /** Check whether the library was compiled with debugging trace
  *
@@ -181,28 +169,7 @@ void            rs_trace_stderr(rs_loglevel level, char const *msg);
  * nothing.
  * \sa \ref api_trace
  */
-int             rs_supports_trace(void);
-
-/**
- * Convert \p from_len bytes at \p from_buf into a hex representation in
- * \p to_buf, which must be twice as long plus one byte for the null
- * terminator.
- */
-void     rs_hexify(char *to_buf, void const *from_buf, int from_len);
-
-/**
- * Decode a base64 buffer in place.
- *
- * \returns The number of binary bytes.
- */
-size_t rs_unbase64(char *s);
-
-
-/**
- * Encode a buffer as base64.
- */
-void rs_base64(unsigned char const *buf, int n, char *out);
-
+EXPORTABLE int rs_supports_trace(void);
 
 /**
  * \enum rs_result
@@ -242,7 +209,7 @@ typedef enum rs_result {
 /**
  * Return an English description of a ::rs_result value.
  */
-char const *rs_strerror(rs_result r);
+EXPORTABLE char const *rs_strerror(rs_result r);
 
 
 /**
@@ -276,31 +243,83 @@ typedef struct rs_stats {
     time_t          start, end;
 } rs_stats_t;
 
-
-extern const int RS_MD4_SUM_LENGTH, RS_BLAKE2_SUM_LENGTH;
-
-/**
- * \brief Return a human-readable representation of statistics.
- *
- * The string is truncated if it does not fit.  100 characters should
- * be sufficient space.
- *
- * \param stats Statistics from an encoding or decoding operation.
- *
- * \param buf Buffer to receive result.
- * \param size Size of buffer.
- * \return \p buf.
- * \see \ref api_stats
- */
-char *rs_format_stats(rs_stats_t const *stats, char *buf, size_t size);
-
 /**
  * Write statistics into the current log as text.
  *
  * \see \ref api_stats
  * \see \ref api_trace
  */
-int rs_log_stats(rs_stats_t const *stats);
+EXPORTABLE int rs_log_stats(rs_stats_t const *stats);
+
+extern const int RS_MD4_SUM_LENGTH, RS_BLAKE2_SUM_LENGTH;
+
+#define RS_MAX_STRONG_SUM_LENGTH 32
+
+typedef unsigned int rs_weak_sum_t;
+typedef unsigned char rs_strong_sum_t[RS_MAX_STRONG_SUM_LENGTH];
+
+/*
+ * TODO: These sumset structures are not terribly useful.  Perhaps we need a
+ * splay tree or something that will let us smoothly grow as data is
+ * read in.
+ */
+
+
+/**
+ * \brief Description of the match described by a signature.
+ */
+typedef struct rs_target {
+    unsigned short  t;
+    int             i;
+} rs_target_t;
+
+typedef struct rs_block_sig rs_block_sig_t;
+
+typedef struct rs_tag_table_entry {
+    int l; // left bound of the hash tag in sorted array of targets
+    int r; // right bound of the hash tag in sorted array of targets
+    // all tags between l and r inclusively are the same
+} rs_tag_table_entry_t ;
+
+/*
+ * This structure describes all the sums generated for an instance of
+ * a file.  It incorporates some redundancy to make it easier to
+ * search.
+ */
+struct rs_signature {
+    rs_long_t       flength;        /* total file length */
+    int             count;          /* how many chunks */
+    int             remainder;      /* flength % block_length */
+    int             block_len;      /* block_length */
+    int             strong_sum_len;
+    rs_block_sig_t  *block_sigs;    /* points to info for each chunk */
+    rs_tag_table_entry_t        *tag_table;
+    rs_target_t     *targets;
+    int             magic;
+    int             block_sigs_size;
+};
+
+/**
+ * \typedef rs_signature_t
+ */
+typedef struct rs_signature rs_signature_t;
+
+
+/*
+ * All blocks are the same length in the current algorithm except for
+ * the last block which may be short.
+ */
+struct rs_block_sig {
+    int             i;            /* index of this chunk */
+    rs_weak_sum_t   weak_sum;     /* simple checksum */
+    rs_strong_sum_t strong_sum;   /* checksum  */
+};
+
+
+/**
+ * Deep deallocation of checksums.
+ */
+EXPORTABLE void rs_free_sumset(rs_signature_t *);
 
 
 /**
@@ -381,6 +400,19 @@ typedef struct rs_buffers_s rs_buffers_t;
 /** Default block length, if not determined by any other factors. */
 #define RS_DEFAULT_BLOCK_LEN 2048
 
+/**
+* Buffer sizes for file IO.
+*
+* You probably only need to change these in testing.
+*/
+extern int rs_inbuflen;
+extern int rs_outbuflen;
+
+EXPORTABLE void rs_set_inbuflen(int new_inbuflen);
+EXPORTABLE int rs_get_inbuflen();
+EXPORTABLE void rs_set_outbuflen(int new_outbuflen);
+EXPORTABLE int rs_get_outbuflen();
+
 
 /**
  * \brief Job of work to be done.
@@ -398,78 +430,14 @@ typedef struct rs_job rs_job_t;
 
 
 /**
- * \brief Run a ::rs_job state machine until it blocks
- * (::RS_BLOCKED), returns an error, or completes (::RS_DONE).
- *
- * \param job Description of job state.
- *
- * \param buffers Pointer to structure describing input and output buffers.
- *
- * \return The ::rs_result that caused iteration to stop.
- *
- * \c buffers->eof_in should be true if there is no more data after what's
- * in the
- * input buffer.  The final block checksum will run across whatever's
- * in there, without trying to accumulate anything else.
- *
- * \see \ref api_streaming.
- */
-rs_result       rs_job_iter(rs_job_t *job, rs_buffers_t *buffers);
-
-/**
  * Type of application-supplied function for rs_job_drive().
  *
  * \see \ref api_pull.
  **/
-typedef rs_result rs_driven_cb(rs_job_t *job, rs_buffers_t *buf,
-                               void *opaque);
+typedef rs_result rs_driven_cb(rs_job_t *job, rs_buffers_t *buf, void *opaque);
 
-/**
- * Actively process a job, by making callbacks to fill and empty the
- * buffers until the job is done.
- */
-rs_result rs_job_drive(rs_job_t *job, rs_buffers_t *buf,
-                       rs_driven_cb in_cb, void *in_opaque,
-                       rs_driven_cb out_cb, void *out_opaque);
-
-/**
- * Return a pointer to the statistics in a job.
- */
-const rs_stats_t * rs_job_statistics(rs_job_t *job);
-
-/** Deallocate job state.
- */
-rs_result       rs_job_free(rs_job_t *);
-
-/**
- * \brief Start generating a signature.
- *
- * \return A new rs_job_t into which the old file data can be passed.
- *
- * \param sig_magic Indicates the version of signature file format to generate.
- * See ::rs_magic_number.
- *
- * \param new_block_len Size of checksum blocks.  Larger values make the
- * signature shorter, and the delta longer.
- *
- * \param strong_sum_len If non-zero, truncate the strong signatures to this
- * many bytes, to make the signature shorter.  It's recommended you leave this
- * at zero to get the full strength.
- *
- * \sa rs_sig_file()
- */
-rs_job_t *rs_sig_begin(size_t new_block_len,
-                       size_t strong_sum_len,
-                       rs_magic_number sig_magic);
-
-/**
- * Prepare to compute a streaming delta.
- *
- * \todo Add a version of this that takes a ::rs_magic_number controlling the
- * delta format.
- **/
-rs_job_t *rs_delta_begin(rs_signature_t *);
-
+EXPORTABLE void rs_set_roll_paranoia(int new_roll_paranoia);
+EXPORTABLE int rs_get_roll_paranoia();
 
 /**
  * \brief Read a signature from a file into an ::rs_signature structure
@@ -489,7 +457,7 @@ rs_job_t *rs_loadsig_begin(rs_signature_t **);
  *
  * Use rs_free_sumset() to release it after use.
  */
-rs_result rs_build_hash_table(rs_signature_t* sums);
+EXPORTABLE rs_result rs_build_hash_table(rs_signature_t* sums);
 
 
 /**
@@ -539,13 +507,6 @@ rs_job_t *rs_patch_begin(rs_copy_cb *copy_cb, void *copy_arg);
 #ifndef RSYNC_NO_STDIO_INTERFACE
 #include <stdio.h>
 
-/**
- * Buffer sizes for file IO.
- *
- * You probably only need to change these in testing.
- */
-extern int rs_inbuflen, rs_outbuflen;
-
 
 /**
  * Generate the signature of a basis file, and write it out to
@@ -566,7 +527,7 @@ extern int rs_inbuflen, rs_outbuflen;
  *
  * \sa \ref api_whole
  */
-rs_result rs_sig_file_magic(FILE *old_file, FILE *sig_file,
+EXPORTABLE rs_result rs_sig_file_magic(FILE *old_file, FILE *sig_file,
                       size_t block_len, size_t strong_len,
                       rs_magic_number sig_magic,
                       rs_stats_t *stats);
@@ -612,7 +573,7 @@ rs_result rs_sig_filename_magic(const char *basis_filename, const char *sig_file
  *
  * \sa \ref api_whole
  */
-rs_result rs_sig_file(FILE *old_file, FILE *sig_file,
+EXPORTABLE rs_result rs_sig_file(FILE *old_file, FILE *sig_file,
                       size_t block_len, size_t strong_len,
                       rs_stats_t *stats);
 
@@ -622,9 +583,9 @@ rs_result rs_sig_file(FILE *old_file, FILE *sig_file,
  *
  * \sa \ref api_whole
  */
-rs_result rs_loadsig_file(FILE *sig_file, rs_signature_t **sumset
-    , rs_stats_t *stats);
-rs_result rs_loadsig_filename(const char *sig_name, rs_signature_t **sumset
+EXPORTABLE rs_result rs_loadsig_file(FILE *sig_file, rs_signature_t **sumset,
+    rs_stats_t *stats);
+EXPORTABLE rs_result rs_loadsig_filename(const char *sig_name, rs_signature_t **sumset
     , rs_stats_t *stats);
 
 /**
@@ -637,25 +598,24 @@ rs_result rs_file_copy_cb(void *arg, rs_long_t pos, size_t *len, void **buf);
  * Generate a delta between a signature and a new file, int a delta file.
  * \sa \ref api_whole
  **/
-rs_result rs_delta_file(rs_signature_t *, FILE *new_file, FILE *delta_file, rs_stats_t *);
+EXPORTABLE rs_result rs_delta_file(rs_signature_t *, FILE *new_file, FILE *delta_file, rs_stats_t *);
 
-rs_result rs_delta_filename(rs_signature_t *, const char *new_file, const char *delta_file, rs_stats_t *);
+EXPORTABLE rs_result rs_delta_filename(rs_signature_t *, const char *new_file, const char *delta_file, rs_stats_t *);
 
 /**
  * Apply a patch, relative to a basis, into a new file.
  * \sa \ref api_whole
  */
-rs_result rs_patch_file(FILE *basis_file, FILE *delta_file, FILE *new_file, rs_stats_t *);
+EXPORTABLE rs_result rs_patch_file(FILE *basis_file, FILE *delta_file, FILE *new_file, rs_stats_t *);
 #endif /* ! RSYNC_NO_STDIO_INTERFACE */
 
 #ifdef __cplusplus
 }
 #endif
 
-#include "mdfour.h"
 #include "trace.h"
 
 #endif /* ! __LIBRSYNC_LIBRSYNC_H_ */
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

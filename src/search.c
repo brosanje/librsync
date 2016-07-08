@@ -103,8 +103,7 @@ static void heap_sort(rs_signature_t * sums) {
     }
 }
 
-rs_result
-EXPORTABLE rs_build_hash_table(rs_signature_t * sums)
+EXPORTABLE rs_result rs_build_hash_table(rs_signature_t * sums)
 {
     int i;
 
@@ -241,5 +240,5 @@ rs_search_for_block(rs_weak_sum_t weak_sum,
     return !v;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

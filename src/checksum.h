@@ -24,6 +24,10 @@
 
 #include "librsync.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 rs_weak_sum_t rs_calc_weak_sum(void const *buf1, int len);
 
 void rs_calc_strong_sum(void const *buf, size_t buf_len, rs_strong_sum_t *);
@@ -35,7 +39,11 @@ void rs_calc_blake2_sum(void const *buf, size_t buf_len, rs_strong_sum_t *);
  * checksum algorithm: tridge suggests a prime number. */
 #define RS_CHAR_OFFSET 31
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* __LIBRSYNC_CHECKSUM_H_ */
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

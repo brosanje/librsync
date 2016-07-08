@@ -23,7 +23,8 @@
 #ifndef __LIBRSYNC_MDFOUR_H_
 #define __LIBRSYNC_MDFOUR_H_
 
-#include <stdlib.h>
+#include <sys/types.h>
+
 #include "types.h"
 
 /** \private
@@ -70,7 +71,7 @@ void rs_mdfour_result(rs_mdfour_t * md, unsigned char *out);
 }
 #endif
 
-#endif // __LIBRSYNC_MDFOUR_H_
+#endif /* ! __LIBRSYNC_MDFOUR_H_ */
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

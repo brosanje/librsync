@@ -62,7 +62,7 @@
  */
 
 
-#include "librsync.h"
+#include "delta.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -75,6 +75,7 @@
 #include "search.h"
 #include "types.h"
 #include "rollsum.h"
+#include "buf.h"
 
 const int RS_MD4_SUM_LENGTH = 16;
 const int RS_BLAKE2_SUM_LENGTH = 32;
@@ -118,6 +119,9 @@ const int RS_BLAKE2_SUM_LENGTH = 32;
 
 /* used by rdiff, but now redundant */
 int rs_roll_paranoia = 0;
+
+EXPORTABLE void rs_set_roll_paranoia(int new_roll_paranoia) { rs_roll_paranoia = new_roll_paranoia; }
+EXPORTABLE int rs_get_roll_paranoia() { return rs_roll_paranoia; }
 
 static rs_result rs_delta_s_scan(rs_job_t *job);
 static rs_result rs_delta_s_flush(rs_job_t *job);
@@ -475,5 +479,5 @@ rs_job_t *rs_delta_begin(rs_signature_t *sig)
     return job;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

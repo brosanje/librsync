@@ -27,6 +27,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "librsync.h"
+#include "checksum.h"
+#include "mdfour.h"
 #include "blake2.h"
 
 // build on old api signature

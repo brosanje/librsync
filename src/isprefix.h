@@ -21,9 +21,20 @@
 #ifndef __LIBRSYNC_ISPREFIX_H_
 #define __LIBRSYNC_ISPREFIX_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Return true if TIP is a prefix of ICEBERG.
  */
 int isprefix(char const *tip, char const *iceberg);
 
-#endif // __LIBRSYNC_ISPREFIX_H_
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* ! __LIBRSYNC_ISPREFIX_H_ */
+
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
+*/

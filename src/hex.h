@@ -19,40 +19,25 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __LIBRSYNC_BUF_H_
-#define __LIBRSYNC_BUF_H_
-
-#include "librsync.h"
-
-#include <stdio.h>
-
-struct rs_filebuf {
-    FILE *f;
-    char            *buf;
-    size_t          buf_len;
-};
-
-typedef struct rs_filebuf rs_filebuf_t;
+#ifndef __LIBRSYNC_HEX_H_
+#define __LIBRSYNC_HEX_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int      rs_inbuflen;
-extern int      rs_outbuflen;
-
-rs_filebuf_t*   rs_filebuf_new(FILE *f, size_t buf_len);
-void            rs_filebuf_free(rs_filebuf_t *fb);
-rs_result       rs_infilebuf_fill(rs_job_t *, rs_buffers_t *buf, void *fb);
-rs_result       rs_outfilebuf_drain(rs_job_t *, rs_buffers_t *, void *fb);
-
-rs_result rs_outfilebuf_drain(rs_job_t *, rs_buffers_t *, void *fb);
+/**
+ * Convert \p from_len bytes at \p from_buf into a hex representation in
+ * \p to_buf, which must be twice as long plus one byte for the null
+ * terminator.
+ */
+void     rs_hexify(char *to_buf, void const *from_buf, int from_len);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ! __LIBRSYNC_BUF_H_ */
+#endif /* !__LIBRSYNC_HEX_H_ */
 
-/* vim: expandtab shiftwidth=4
- */
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
+*/

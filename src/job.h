@@ -24,6 +24,7 @@
 
 #include "librsync.h"
 
+#include "mdfour.h"
 #include "rollsum.h"
 
 /**
@@ -108,15 +109,51 @@ extern "C" {
 
 rs_job_t * rs_job_new(const char *, rs_result (*statefn)(rs_job_t *));
 
+/**
+ * Actively process a job, by making callbacks to fill and empty the
+ * buffers until the job is done.
+ */
+rs_result rs_job_drive(rs_job_t *job, rs_buffers_t *buf,
+                       rs_driven_cb in_cb, void *in_opaque,
+                       rs_driven_cb out_cb, void *out_opaque);
+
+/**
+ * \brief Run a ::rs_job state machine until it blocks
+ * (::RS_BLOCKED), returns an error, or completes (::RS_DONE).
+ *
+ * \param job Description of job state.
+ *
+ * \param buffers Pointer to structure describing input and output buffers.
+ *
+ * \return The ::rs_result that caused iteration to stop.
+ *
+ * \c buffers->eof_in should be true if there is no more data after what's
+ * in the
+ * input buffer.  The final block checksum will run across whatever's
+ * in there, without trying to accumulate anything else.
+ *
+ * \see \ref api_streaming.
+ */
+rs_result       rs_job_iter(rs_job_t *job, rs_buffers_t *buffers);
+
 void rs_job_check(rs_job_t *job);
 
 int rs_job_input_is_ending(rs_job_t *job);
+
+/**
+ * Return a pointer to the statistics in a job.
+ */
+const rs_stats_t * rs_job_statistics(rs_job_t *job);
+
+/** Deallocate job state.
+ */
+rs_result       rs_job_free(rs_job_t *);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*  __LIBRSYNC_JOB_H_ */
+#endif /* ! __LIBRSYNC_JOB_H_ */
 
 /* vim: expandtab shiftwidth=4
  */

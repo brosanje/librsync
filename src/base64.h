@@ -19,40 +19,32 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __LIBRSYNC_BUF_H_
-#define __LIBRSYNC_BUF_H_
+#ifndef __LIBRSYNC_BASE64_H_
+#define __LIBRSYNC_BASE64_H_
 
-#include "librsync.h"
-
-#include <stdio.h>
-
-struct rs_filebuf {
-    FILE *f;
-    char            *buf;
-    size_t          buf_len;
-};
-
-typedef struct rs_filebuf rs_filebuf_t;
+#include <sys/types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int      rs_inbuflen;
-extern int      rs_outbuflen;
+/*
+ * Decode a base64 string in-place - simple and slow algorithm
+ * 
+ * See RFC1521 for the specification of base64.
+ */
+size_t rs_unbase64(char *s);
 
-rs_filebuf_t*   rs_filebuf_new(FILE *f, size_t buf_len);
-void            rs_filebuf_free(rs_filebuf_t *fb);
-rs_result       rs_infilebuf_fill(rs_job_t *, rs_buffers_t *buf, void *fb);
-rs_result       rs_outfilebuf_drain(rs_job_t *, rs_buffers_t *, void *fb);
-
-rs_result rs_outfilebuf_drain(rs_job_t *, rs_buffers_t *, void *fb);
+/*
+ * Encode a buffer as base64 - simple and slow algorithm.
+ */
+void rs_base64(unsigned char const *buf, int n, char *out);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ! __LIBRSYNC_BUF_H_ */
+#endif /* !__LIBRSYNC_BASE64_H_ */
 
-/* vim: expandtab shiftwidth=4
- */
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
+*/

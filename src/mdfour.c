@@ -380,5 +380,5 @@ rs_mdfour(unsigned char *out, void const *in, size_t n)
     rs_mdfour_result(&md, out);
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

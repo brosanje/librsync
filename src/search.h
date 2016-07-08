@@ -42,5 +42,5 @@ rs_search_for_block(rs_weak_sum_t weak_sum,
 
 #endif // __LIBRSYNC_SEARCH_H_
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

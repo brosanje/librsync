@@ -19,40 +19,35 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __LIBRSYNC_BUF_H_
-#define __LIBRSYNC_BUF_H_
+#ifndef __LIBRSYNC_STATS_H_
+#define __LIBRSYNC_STATS_H_
 
 #include "librsync.h"
-
-#include <stdio.h>
-
-struct rs_filebuf {
-    FILE *f;
-    char            *buf;
-    size_t          buf_len;
-};
-
-typedef struct rs_filebuf rs_filebuf_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int      rs_inbuflen;
-extern int      rs_outbuflen;
-
-rs_filebuf_t*   rs_filebuf_new(FILE *f, size_t buf_len);
-void            rs_filebuf_free(rs_filebuf_t *fb);
-rs_result       rs_infilebuf_fill(rs_job_t *, rs_buffers_t *buf, void *fb);
-rs_result       rs_outfilebuf_drain(rs_job_t *, rs_buffers_t *, void *fb);
-
-rs_result rs_outfilebuf_drain(rs_job_t *, rs_buffers_t *, void *fb);
+/**
+ * \brief Return a human-readable representation of statistics.
+ *
+ * The string is truncated if it does not fit.  100 characters should
+ * be sufficient space.
+ *
+ * \param stats Statistics from an encoding or decoding operation.
+ *
+ * \param buf Buffer to receive result.
+ * \param size Size of buffer.
+ * \return \p buf.
+ * \see \ref api_stats
+ */
+char* rs_format_stats(rs_stats_t const * stats, char *buf, size_t size);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ! __LIBRSYNC_BUF_H_ */
+#endif /* ! __LIBRSYNC_STATS_H_ */
 
-/* vim: expandtab shiftwidth=4
- */
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
+*/

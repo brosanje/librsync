@@ -37,6 +37,7 @@
 #include "netint.h"
 #include "util.h"
 #include "stream.h"
+#include "hex.h"
 
 
 static rs_result rs_loadsig_s_weak(rs_job_t *job);
@@ -212,5 +213,5 @@ rs_job_t *rs_loadsig_begin(rs_signature_t **signature)
     return job;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

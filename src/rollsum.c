@@ -50,5 +50,5 @@ void RollsumUpdate(Rollsum *sum,const unsigned char *buf,unsigned int len) {
     sum->s2=s2;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

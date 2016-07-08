@@ -27,9 +27,9 @@
 
 #include "librsync.h"
 #include "util.h"
+#include "hex.h"
 
-void
-EXPORTABLE rs_free_sumset(rs_signature_t * psums)
+EXPORTABLE void rs_free_sumset(rs_signature_t * psums)
 {
     if (psums->block_sigs)
         free(psums->block_sigs);
@@ -67,5 +67,5 @@ rs_sumset_dump(rs_signature_t const *sums)
     }
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

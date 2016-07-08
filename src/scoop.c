@@ -260,5 +260,5 @@ size_t rs_scoop_total_avail(rs_job_t *job)
     return job->scoop_avail + job->stream->avail_in;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

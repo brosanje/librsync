@@ -56,5 +56,5 @@ void rs_bzero(void *buf, size_t size);
 
 #endif /* __LIBRSYNC_UTIL_H_ */
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

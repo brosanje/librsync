@@ -17,19 +17,6 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "librsync.h"
-
-#include <assert.h>
-#include <sys/types.h>
-
-#ifdef HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
-
-#include <stdio.h>
-
-
-
 void
 rs_hexify(char *to_buf, void const *from, int from_len)
 {
@@ -45,5 +32,5 @@ rs_hexify(char *to_buf, void const *from, int from_len)
     *to_buf = 0;
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

@@ -36,5 +36,5 @@ rs_result rs_whole_run(rs_job_t *job, FILE *in_file, FILE *out_file);
 
 #endif /* __LIBRSYNC_WHOLE_H_ */
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

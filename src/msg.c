@@ -46,8 +46,7 @@
  */
 
 
-char const *
-EXPORTABLE rs_strerror(rs_result r)
+EXPORTABLE char const *rs_strerror(rs_result r)
 {
     switch (r) {
     case RS_DONE:

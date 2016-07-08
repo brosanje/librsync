@@ -1,5 +1,5 @@
-/* config.h.  Generated from config.h.in by configure.  */
-/* config.h.in.  Generated from configure.ac by autoheader.  */
+/*                    -*- c-basic-offset: 4; indent-tabs-mode: nil; -*- */
+/* config.h.  Generated from config.h.cmake by cmake.  */
 
 /* Define if building universal (internal helper macro) */
 #cmakedefine AC_APPLE_UNIVERSAL_BUILD
@@ -215,3 +215,6 @@
 
 /* FIXME Define to `unsigned int' if <sys/types.h> does not define. */
 /* #undef size_t */
+
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
+ */

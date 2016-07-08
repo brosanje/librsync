@@ -253,6 +253,34 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(rsync_LIB_SRCS
     # This was generated
     ${CMAKE_CURRENT_BINARY_DIR}/src/prototab.c
+    src/base64.h
+    src/blake2.h
+    src/blake2-impl.h
+    src/buf.h
+    src/checksum.h
+    src/command.h
+    src/config.h
+    src/delta.h
+    src/emit.h
+    src/fileutil.h
+    src/hex.h
+    src/isprefix.h
+    src/job.h
+    src/librsync.h
+    src/librsync-config.h
+    src/mdfour.h
+    src/mksum.h
+    src/netint.h
+    src/prototab.h
+    src/rollsum.h
+    src/search.h
+    src/stream.h
+    src/stats.h
+    src/sumset.h
+    src/trace.h
+    src/types.h
+    src/util.h
+    src/whole.h
     src/base64.c
     src/buf.c
     src/checksum.c
@@ -279,7 +307,8 @@ set(rsync_LIB_SRCS
     src/util.c
     src/version.c
     src/whole.c
-    src/blake2b-ref.c)
+    src/blake2b-ref.c
+    )
 
 add_library(rsync SHARED ${rsync_LIB_SRCS})
 
@@ -307,8 +336,19 @@ if (BUILD_RDIFF)
       src/isprefix.c)
 
   add_executable(rdiff ${rdiff_SRCS})
+
   if (POPT_FOUND)
-    target_link_libraries(rdiff rsync ${POPT_LIBRARIES})
+    IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      # Mac OS X specific code
+      # the dynlib popt libraries contains a dependency for iconv
+      # but the static library does not, and will need a link time dependency for iconv
+      FIND_LIBRARY(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2)
+
+      target_link_libraries(rdiff rsync ${POPT_LIBRARIES} ${ICONV_LIBRARIES})
+    ELSE()
+      # linux doesn't need a -liconv
+      target_link_libraries(rdiff rsync ${POPT_LIBRARIES})
+    ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   else (POPT_FOUND)
     message (WARNING "Popt library is required for rdiff target")
   endif (POPT_FOUND)

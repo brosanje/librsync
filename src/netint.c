@@ -177,5 +177,5 @@ int rs_int_len(rs_long_t val)
     }
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

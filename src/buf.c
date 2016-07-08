@@ -41,6 +41,7 @@
 #include "buf.h"
 
 #include <assert.h>
+#include <stdio.h>
 #include <errno.h>
 #include <string.h>
 
@@ -60,6 +61,10 @@
 EXPORTABLE int rs_inbuflen = 16000;
 EXPORTABLE int rs_outbuflen = 16000;
 
+EXPORTABLE void rs_set_inbuflen(int new_inbuflen) { rs_inbuflen = new_inbuflen; }
+EXPORTABLE int rs_get_inbuflen() { return rs_inbuflen; }
+EXPORTABLE void rs_set_outbuflen(int new_outbuflen) { rs_outbuflen = new_outbuflen; }
+EXPORTABLE int rs_get_outbuflen() { return rs_outbuflen; }
 
 rs_filebuf_t* rs_filebuf_new(FILE *f, size_t buf_len)
 {
@@ -214,5 +219,5 @@ rs_result rs_file_copy_cb(void *arg, rs_long_t pos, size_t *len, void **buf)
     }
 }
 
-/* vim: expandtab shiftwidth=4
+/* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */
