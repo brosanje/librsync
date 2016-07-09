@@ -42,11 +42,8 @@
 
 #include "mdfour.h"
 
-#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
-#include "librsync.h"
 
 #define F(X,Y,Z) ((((Y) ^ (Z)) & (X)) ^ (Z))
 #define G(X,Y,Z) (((Z) & ((X) ^ (Y))) | ((X) & (Y)))
