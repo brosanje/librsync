@@ -48,14 +48,14 @@
 
 #include "librsync.h"
 
-#define F(X,Y,Z) (((X)&(Y)) | ((~(X))&(Z)))
-#define G(X,Y,Z) (((X)&(Y)) | ((X)&(Z)) | ((Y)&(Z)))
+#define F(X,Y,Z) ((((Y) ^ (Z)) & (X)) ^ (Z))
+#define G(X,Y,Z) (((Z) & ((X) ^ (Y))) | ((X) & (Y)))
 #define H(X,Y,Z) ((X)^(Y)^(Z))
-#define lshift(x,s) (((x)<<(s)) | ((x)>>(32-(s))))
+#define lshift(x,s) (((x)<<(s)) | (((x) & 0xffffffff) >>(32-(s))))
 
-#define ROUND1(a,b,c,d,k,s) a = lshift(a + F(b,c,d) + X[k], s)
-#define ROUND2(a,b,c,d,k,s) a = lshift(a + G(b,c,d) + X[k] + 0x5A827999,s)
-#define ROUND3(a,b,c,d,k,s) a = lshift(a + H(b,c,d) + X[k] + 0x6ED9EBA1,s)
+#define ROUND1(a,b,c,d,k,s) (a) += F(b,c,d) + X[k]; (a) = lshift(a, s);
+#define ROUND2(a,b,c,d,k,s) (a) += G(b,c,d) + X[k] + 0x5A827999; (a) = lshift(a,s);
+#define ROUND3(a,b,c,d,k,s) (a) += H(b,c,d) + X[k] + 0x6ED9EBA1; (a) = lshift(a,s);
 
 /** padding data used for finalising */
 static unsigned char PADDING[64] = {
@@ -266,7 +266,6 @@ rs_mdfour_block(rs_mdfour_t *md, void const *p)
 void
 rs_mdfour_begin(rs_mdfour_t * md)
 {
-    memset(md, 0, sizeof(*md));
     md->A = 0x67452301;
     md->B = 0xefcdab89;
     md->C = 0x98badcfe;
@@ -276,6 +275,7 @@ rs_mdfour_begin(rs_mdfour_t * md)
 #else
     md->totalN_hi = md->totalN_lo = 0;
 #endif
+    md->tail_len = 0;
 }
 
 
