@@ -38,126 +38,294 @@
  * 2004-09-09: Simon Law  <sfllaw@debian.org>
  *   handle little-endian machines that can't do unaligned access
  *   (e.g. ia64, pa-risc).
+ *
+ * 2016-07-08: Bro Sanje <bro.sanje@gmail.com>
+ *   replaced with code from 
+ *   http://openwall.info/wiki/people/solar/software/public-domain-source-code/md4
+ *   and adapted to librsync, with Robert Weber's optimizations.
  */
 
-#include "mdfour.h"
+/*
+ * This is an OpenSSL-compatible implementation of the RSA Data Security, Inc.
+ * MD4 Message-Digest Algorithm (RFC 1320).
+ *
+ * Homepage:
+ * http://openwall.info/wiki/people/solar/software/public-domain-source-code/md4
+ *
+ * Author:
+ * Alexander Peslyak, better known as Solar Designer <solar at openwall.com>
+ *
+ * This software was written by Alexander Peslyak in 2001.  No copyright is
+ * claimed, and the software is hereby placed in the public domain.
+ * In case this attempt to disclaim copyright and place the software in the
+ * public domain is deemed null and void, then the software is
+ * Copyright (c) 2001 Alexander Peslyak and it is hereby released to the
+ * general public under the following terms:
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted.
+ *
+ * There's ABSOLUTELY NO WARRANTY, express or implied.
+ *
+ * (This is a heavily cut-down "BSD license".)
+ *
+ * This differs from Colin Plumb's older public domain implementation in that
+ * no exactly 32-bit integer data type is required (any 32-bit or wider
+ * unsigned integer data type will do), there's no compile-time endianness
+ * configuration, and the function prototypes match OpenSSL's.  No code from
+ * Colin Plumb's implementation has been reused; this comment merely compares
+ * the properties of the two independent implementations.
+ *
+ * The primary goals of this implementation are portability and ease of use.
+ * It is meant to be fast, but not as fast as possible.  Some known
+ * optimizations are not included to reduce source code size and avoid
+ * compile-time configuration.
+ */
 
 #include <string.h>
 #include <stdio.h>
 
-#define F(X,Y,Z) ((((Y) ^ (Z)) & (X)) ^ (Z))
-#define G(X,Y,Z) (((Z) & ((X) ^ (Y))) | ((X) & (Y)))
-#define H(X,Y,Z) ((X)^(Y)^(Z))
-#define lshift(x,s) (((x)<<(s)) | (((x) & 0xffffffff) >>(32-(s))))
+#include "mdfour.h"
+//#include "librsync-config.h"
 
-#define ROUND1(a,b,c,d,k,s) (a) += F(b,c,d) + X[k]; (a) = lshift(a, s);
-#define ROUND2(a,b,c,d,k,s) (a) += G(b,c,d) + X[k] + 0x5A827999; (a) = lshift(a,s);
-#define ROUND3(a,b,c,d,k,s) (a) += H(b,c,d) + X[k] + 0x6ED9EBA1; (a) = lshift(a,s);
+#ifdef HAVE_OPENSSL
+//#pragma message WARN("Using OpenSSL")
 
-/** padding data used for finalising */
-static unsigned char PADDING[64] = {
-    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-};
+#include <openssl/md4.h>
 
+#else
 
-static void
-rs_mdfour_block(rs_mdfour_t *md, void const *p);
+void MD4_Init(MD4_CTX *ctx);
+void MD4_Update(MD4_CTX *ctx, const void *data, unsigned long size);
+void MD4_Final(unsigned char *result, MD4_CTX *ctx);
 
+#endif
 
-
-/**
- * Update an MD4 accumulator from a 64-byte chunk.
- *
- * This cannot be used for the last chunk of the file, which must be
- * padded and contain the file length.  rs_mdfour_tail() is used for
- * that.
- *
- * \todo Recode to be fast, and to use system integer types.  Perhaps
- * if we can find an mdfour implementation already on the system
- * (e.g. in OpenSSL) then we should use it instead of our own?
- *
- * \param X A series of integer, read little-endian from the file.
- */
-static void
-rs_mdfour64(rs_mdfour_t * m, const void *p)
+void rs_mdfour(unsigned char *out, void const *in, unsigned long inlen)
 {
-    uint32_t        AA, BB, CC, DD;
-    uint32_t        A, B, C, D;
-    const uint32_t *X = (const uint32_t *) p;
-
-    A = m->A;
-    B = m->B;
-    C = m->C;
-    D = m->D;
-    AA = A;
-    BB = B;
-    CC = C;
-    DD = D;
-
-    ROUND1(A, B, C, D, 0, 3);
-    ROUND1(D, A, B, C, 1, 7);
-    ROUND1(C, D, A, B, 2, 11);
-    ROUND1(B, C, D, A, 3, 19);
-    ROUND1(A, B, C, D, 4, 3);
-    ROUND1(D, A, B, C, 5, 7);
-    ROUND1(C, D, A, B, 6, 11);
-    ROUND1(B, C, D, A, 7, 19);
-    ROUND1(A, B, C, D, 8, 3);
-    ROUND1(D, A, B, C, 9, 7);
-    ROUND1(C, D, A, B, 10, 11);
-    ROUND1(B, C, D, A, 11, 19);
-    ROUND1(A, B, C, D, 12, 3);
-    ROUND1(D, A, B, C, 13, 7);
-    ROUND1(C, D, A, B, 14, 11);
-    ROUND1(B, C, D, A, 15, 19);
-
-    ROUND2(A, B, C, D, 0, 3);
-    ROUND2(D, A, B, C, 4, 5);
-    ROUND2(C, D, A, B, 8, 9);
-    ROUND2(B, C, D, A, 12, 13);
-    ROUND2(A, B, C, D, 1, 3);
-    ROUND2(D, A, B, C, 5, 5);
-    ROUND2(C, D, A, B, 9, 9);
-    ROUND2(B, C, D, A, 13, 13);
-    ROUND2(A, B, C, D, 2, 3);
-    ROUND2(D, A, B, C, 6, 5);
-    ROUND2(C, D, A, B, 10, 9);
-    ROUND2(B, C, D, A, 14, 13);
-    ROUND2(A, B, C, D, 3, 3);
-    ROUND2(D, A, B, C, 7, 5);
-    ROUND2(C, D, A, B, 11, 9);
-    ROUND2(B, C, D, A, 15, 13);
-
-    ROUND3(A, B, C, D, 0, 3);
-    ROUND3(D, A, B, C, 8, 9);
-    ROUND3(C, D, A, B, 4, 11);
-    ROUND3(B, C, D, A, 12, 15);
-    ROUND3(A, B, C, D, 2, 3);
-    ROUND3(D, A, B, C, 10, 9);
-    ROUND3(C, D, A, B, 6, 11);
-    ROUND3(B, C, D, A, 14, 15);
-    ROUND3(A, B, C, D, 1, 3);
-    ROUND3(D, A, B, C, 9, 9);
-    ROUND3(C, D, A, B, 5, 11);
-    ROUND3(B, C, D, A, 13, 15);
-    ROUND3(A, B, C, D, 3, 3);
-    ROUND3(D, A, B, C, 11, 9);
-    ROUND3(C, D, A, B, 7, 11);
-    ROUND3(B, C, D, A, 15, 15);
-
-    A += AA;
-    B += BB;
-    C += CC;
-    D += DD;
-
-    m->A = A;
-    m->B = B;
-    m->C = C;
-    m->D = D;
+#ifdef HAVE_OPENSSL
+    MD4(in, inlen, out);
+#else
+    MD4_CTX ctx;
+    MD4_Init(&ctx);
+    MD4_Update(&ctx, in, inlen);
+    MD4_Final(out, &ctx);
+#endif
 }
 
+void rs_mdfour_begin(rs_mdfour_t * md)
+{
+    MD4_Init(md);
+}
+
+void rs_mdfour_update(rs_mdfour_t * md, void const *in_void, unsigned long n)
+{
+    MD4_Update(md, in_void, n);
+}
+
+void rs_mdfour_result(rs_mdfour_t * md, unsigned char *out)
+{
+    MD4_Final(out, md);
+}
+
+#ifndef HAVE_OPENSSL
+
+//#pragma message WARN("No OpenSSL - providing substitution MD4")
+
+/*
+ * The basic MD4 functions.
+ *
+ * F and G are optimized compared to their RFC 1320 definitions, with the
+ * optimization for F borrowed from Colin Plumb's MD5 implementation.
+ */
+#define F(x, y, z)            ((z) ^ ((x) & ((y) ^ (z))))
+#define G(x, y, z)            (((x) & ((y) | (z))) | ((y) & (z)))
+#define H(x, y, z)            ((x) ^ (y) ^ (z))
+
+/*
+ * The MD4 transformation for all three rounds.
+ */
+#define STEP(f, a, b, c, d, x, s) \
+    (a) += f((b), (c), (d)) + (x); \
+    (a) = (((a) << (s)) | (((a) & 0xffffffff) >> (32 - (s))));
+
+/*
+ * SET reads 4 input bytes in little-endian byte order and stores them in a
+ * properly aligned word in host byte order.
+ *
+ * The check for little-endian architectures that tolerate unaligned memory
+ * accesses is just an optimization.  Nothing will break if it fails to detect
+ * a suitable architecture.
+ *
+ * Unfortunately, this optimization may be a C strict aliasing rules violation
+ * if the caller's data buffer has effective type that cannot be aliased by
+ * MD4_u32plus.  In practice, this problem may occur if these MD4 routines are
+ * inlined into a calling function, or with future and dangerously advanced
+ * link-time optimizations.  For the time being, keeping these MD4 routines in
+ * their own translation unit avoids the problem.
+ */
+#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#define SET(n) \
+    (*(MD4_u32plus *)&ptr[(n) * 4])
+#define GET(n) \
+    SET(n)
+#else
+#define SET(n) \
+    (ctx->block[(n)] = \
+    (MD4_u32plus)ptr[(n) * 4] | \
+    ((MD4_u32plus)ptr[(n) * 4 + 1] << 8) | \
+    ((MD4_u32plus)ptr[(n) * 4 + 2] << 16) | \
+    ((MD4_u32plus)ptr[(n) * 4 + 3] << 24))
+#define GET(n) \
+    (ctx->block[(n)])
+#endif
+
+/*
+ * This processes one or more 64-byte data blocks, but does NOT update the bit
+ * counters.  There are no alignment requirements.
+ */
+static const void *md4cruncher(MD4_CTX *ctx, const void *data, unsigned long size)
+{
+    const unsigned char *ptr;
+    MD4_u32plus a, b, c, d;
+    MD4_u32plus saved_a, saved_b, saved_c, saved_d;
+    const MD4_u32plus ac1 = 0x5a827999, ac2 = 0x6ed9eba1;
+
+    ptr = (const unsigned char *)data;
+
+    a = ctx->a;
+    b = ctx->b;
+    c = ctx->c;
+    d = ctx->d;
+
+    do {
+        saved_a = a;
+        saved_b = b;
+        saved_c = c;
+        saved_d = d;
+
+/* Round 1 */
+        STEP(F, a, b, c, d, SET(0), 3)
+        STEP(F, d, a, b, c, SET(1), 7)
+        STEP(F, c, d, a, b, SET(2), 11)
+        STEP(F, b, c, d, a, SET(3), 19)
+        STEP(F, a, b, c, d, SET(4), 3)
+        STEP(F, d, a, b, c, SET(5), 7)
+        STEP(F, c, d, a, b, SET(6), 11)
+        STEP(F, b, c, d, a, SET(7), 19)
+        STEP(F, a, b, c, d, SET(8), 3)
+        STEP(F, d, a, b, c, SET(9), 7)
+        STEP(F, c, d, a, b, SET(10), 11)
+        STEP(F, b, c, d, a, SET(11), 19)
+        STEP(F, a, b, c, d, SET(12), 3)
+        STEP(F, d, a, b, c, SET(13), 7)
+        STEP(F, c, d, a, b, SET(14), 11)
+        STEP(F, b, c, d, a, SET(15), 19)
+
+/* Round 2 */
+        STEP(G, a, b, c, d, GET(0) + ac1, 3)
+        STEP(G, d, a, b, c, GET(4) + ac1, 5)
+        STEP(G, c, d, a, b, GET(8) + ac1, 9)
+        STEP(G, b, c, d, a, GET(12) + ac1, 13)
+        STEP(G, a, b, c, d, GET(1) + ac1, 3)
+        STEP(G, d, a, b, c, GET(5) + ac1, 5)
+        STEP(G, c, d, a, b, GET(9) + ac1, 9)
+        STEP(G, b, c, d, a, GET(13) + ac1, 13)
+        STEP(G, a, b, c, d, GET(2) + ac1, 3)
+        STEP(G, d, a, b, c, GET(6) + ac1, 5)
+        STEP(G, c, d, a, b, GET(10) + ac1, 9)
+        STEP(G, b, c, d, a, GET(14) + ac1, 13)
+        STEP(G, a, b, c, d, GET(3) + ac1, 3)
+        STEP(G, d, a, b, c, GET(7) + ac1, 5)
+        STEP(G, c, d, a, b, GET(11) + ac1, 9)
+        STEP(G, b, c, d, a, GET(15) + ac1, 13)
+
+/* Round 3 */
+        STEP(H, a, b, c, d, GET(0) + ac2, 3)
+        STEP(H, d, a, b, c, GET(8) + ac2, 9)
+        STEP(H, c, d, a, b, GET(4) + ac2, 11)
+        STEP(H, b, c, d, a, GET(12) + ac2, 15)
+        STEP(H, a, b, c, d, GET(2) + ac2, 3)
+        STEP(H, d, a, b, c, GET(10) + ac2, 9)
+        STEP(H, c, d, a, b, GET(6) + ac2, 11)
+        STEP(H, b, c, d, a, GET(14) + ac2, 15)
+        STEP(H, a, b, c, d, GET(1) + ac2, 3)
+        STEP(H, d, a, b, c, GET(9) + ac2, 9)
+        STEP(H, c, d, a, b, GET(5) + ac2, 11)
+        STEP(H, b, c, d, a, GET(13) + ac2, 15)
+        STEP(H, a, b, c, d, GET(3) + ac2, 3)
+        STEP(H, d, a, b, c, GET(11) + ac2, 9)
+        STEP(H, c, d, a, b, GET(7) + ac2, 11)
+        STEP(H, b, c, d, a, GET(15) + ac2, 15)
+
+        a += saved_a;
+        b += saved_b;
+        c += saved_c;
+        d += saved_d;
+
+        ptr += 64;
+    } while (size -= 64);
+
+    ctx->a = a;
+    ctx->b = b;
+    ctx->c = c;
+    ctx->d = d;
+
+    return ptr;
+}
+
+void MD4_Init(MD4_CTX *ctx)
+{
+    ctx->a = 0x67452301;
+    ctx->b = 0xefcdab89;
+    ctx->c = 0x98badcfe;
+    ctx->d = 0x10325476;
+
+#ifdef HAVE_UINT64
+    ctx->totalN = 0;
+#else
+    ctx->totalN_lo = 0;
+    ctx->totalN_hi = 0;
+#endif
+}
+
+void MD4_Update(MD4_CTX *ctx, const void *data, unsigned long size)
+{
+    unsigned long used, available;
+
+#ifdef HAVE_UINT64
+    used = ctx->totalN & 0x3f;
+    ctx->totalN += size;
+#else
+    MD4_u32plus saved_lo = ctx->totalN_lo;
+    if ((ctx->totalN_lo = (saved_lo + size) & 0x1fffffff) < saved_lo)
+        ctx->totalN_hi++;
+    ctx->totalN_hi += size >> 29;
+
+    used = saved_lo & 0x3f;
+#endif
+
+    if (used) {
+        available = 64 - used;
+
+        if (size < available) {
+            memcpy(&ctx->buffer[used], data, size);
+            return;
+        }
+
+        memcpy(&ctx->buffer[used], data, available);
+        data = (const unsigned char *)data + available;
+        size -= available;
+        md4cruncher(ctx, ctx->buffer, 64);
+    }
+
+    if (size >= 64) {
+        data = md4cruncher(ctx, data, size & ~(unsigned long)0x3f);
+        size &= 0x3f;
+    }
+
+    memcpy(ctx->buffer, data, size);
+}
 
 /**
  * These next routines are necessary because MD4 is specified in terms of
@@ -167,215 +335,66 @@ rs_mdfour64(rs_mdfour_t * m, const void *p)
  * There are some nice endianness routines in glib, including assembler
  * variants. If we ever depended on glib, then it could be good to use them
  * instead. */
-inline static void
-copy4( /* @out@ */ unsigned char *out, uint32_t const x)
-{
-    out[0] = x;
-    out[1] = x >> 8;
-    out[2] = x >> 16;
-    out[3] = x >> 24;
-}
-
 
 /* We need this if there is a uint64 */
 /* --robert.weber@Colorado.edu             */
 #ifdef HAVE_UINT64
 inline static void
-copy8( /* @out@ */ unsigned char *out, uint64_t const x)
+OUT8( /* @out@ */ unsigned char *dst, uint64_t src)
 {
-    out[0] = x;
-    out[1] = x >> 8;
-    out[2] = x >> 16;
-    out[3] = x >> 24;
-    out[4] = x >> 32;
-    out[5] = x >> 40;
-    out[6] = x >> 48;
-    out[7] = x >> 56;
+  for (int ii = 0; 8 > ii; ii++, src >>= 8) *dst++ = (unsigned char) (src & 0xff);
 }
 #endif /* HAVE_UINT64 */
 
+#define OUT4(dst, src) \
+    (dst)[0] = (unsigned char)(src); \
+    (dst)[1] = (unsigned char)((src) >> 8); \
+    (dst)[2] = (unsigned char)((src) >> 16); \
+    (dst)[3] = (unsigned char)((src) >> 24);
 
-/* We only need this if we are big-endian */
-#ifdef WORDS_BIGENDIAN
-inline static void
-copy64( /* @out@ */ uint32_t * M, unsigned char const *in)
+void MD4_Final(unsigned char *result, MD4_CTX *ctx)
 {
-    int i=16;
+    unsigned long used, available;
 
-    while (i--) {
-        *M++ = (in[3] << 24) | (in[2] << 16) | (in[1] << 8) | in[0];
-        in += 4;
-    }
-}
-
-
-/**
- * Accumulate a block, making appropriate conversions for bigendian
- * machines.
- */
-inline static void
-rs_mdfour_block(rs_mdfour_t *md, void const *p)
-{
-    uint32_t        M[16];
-
-    copy64(M, p);
-    rs_mdfour64(md, M);
-}
-
-
-#else /* WORDS_BIGENDIAN */
-
-#  ifdef __i386__
-
-/* If we are on an IA-32 machine, we can process directly. */
-inline static void
-rs_mdfour_block(rs_mdfour_t *md, void const *p)
-{
-    rs_mdfour64(md,p);
-}
-
-#  else /* !WORDS_BIGENDIAN && !__i386__ */
-
-/* We are little-endian, but not on i386 and therefore may not be able
- * to do unaligned access safely/quickly.
- *
- * So if the input is not already aligned correctly, copy it to an
- * aligned buffer first.  */
-inline static void
-rs_mdfour_block(rs_mdfour_t *md, void const *p)
-{
-    unsigned long ptrval = (unsigned long) p;
-
-    if (ptrval & 3) {
-        uint32_t        M[16];
-        
-        memcpy(M, p, 16 * sizeof(uint32_t));
-        rs_mdfour64(md, M);
-    } else {
-        rs_mdfour64(md, (const uint32_t *) p);
-    }
-}
-
-#  endif /* ! __i386__ */
-#endif /* WORDS_BIGENDIAN */
-
-
-void
-rs_mdfour_begin(rs_mdfour_t * md)
-{
-    md->A = 0x67452301;
-    md->B = 0xefcdab89;
-    md->C = 0x98badcfe;
-    md->D = 0x10325476;
-#if HAVE_UINT64
-    md->totalN = 0;
+#ifdef HAVE_UINT64
+    used = ctx->totalN & 0x3f;
 #else
-    md->totalN_hi = md->totalN_lo = 0;
+    used = ctx->totalN_lo & 0x3f;
 #endif
-    md->tail_len = 0;
-}
 
+    ctx->buffer[used++] = 0x80;
 
-/**
- * Handle special behaviour for processing the last block of a file
- * when calculating its MD4 checksum.
- *
- * This must be called exactly once per file.
- *
- * Modified by Robert Weber to use uint64 in order that we can sum files
- * > 2^29 = 512 MB.
- * --Robert.Weber@colorado.edu
- */
-static void
-rs_mdfour_tail(rs_mdfour_t * m)
-{
-#ifdef HAVE_UINT64
-    uint64_t         b;
-#else /* HAVE_UINT64 */
-    uint32_t         b[2];
-#endif /* HAVE_UINT64 */
-    unsigned char   buf[8];
-    size_t          pad_len;
+    available = 64 - used;
 
-    /* convert the totalN byte count into a bit count buffer */
-#ifdef HAVE_UINT64
-    b = m->totalN << 3;
-    copy8(buf, b);
-#else /* HAVE_UINT64 */
-    b[0] = m->totalN_lo << 3;
-    b[1] = ((m->totalN_hi << 3) | (m->totalN_lo >> 29));
-    copy4(buf, b[0]);
-    copy4(buf + 4, b[1]);
-#endif /* HAVE_UINT64 */
-
-    /* calculate length and process the padding data */
-    pad_len=(m->tail_len <56) ? (56 - m->tail_len) : (120 - m->tail_len);
-    rs_mdfour_update(m,PADDING,pad_len);
-    /* process the bit count */
-    rs_mdfour_update(m,buf,8);
-}
-
-
-void
-rs_mdfour_update(rs_mdfour_t * md, void const *in_void, size_t n)
-{
-    unsigned char const        *in = (unsigned char const *) in_void;
-
-    /* increment totalN */
-#ifdef HAVE_UINT64
-    md->totalN+=n;
-#else /* HAVE_UINT64 */
-    if ((md->totalN_lo += n) < n)
-        md->totalN_hi++;
-#endif /* HAVE_UINT64 */
-
-    /* If there's any leftover data in the tail buffer, then first we have
-     * to make it up to a whole block to process it.  */
-    if (md->tail_len) {
-        size_t  tail_gap = 64 - md->tail_len;
-        if (tail_gap <= n) {
-            memcpy(&md->tail[md->tail_len], in, tail_gap);
-            rs_mdfour_block(md, md->tail);
-            in += tail_gap;
-            n -= tail_gap;
-            md->tail_len = 0;
-        }
+    if (available < 8) {
+        memset(&ctx->buffer[used], 0, available);
+        md4cruncher(ctx, ctx->buffer, 64);
+        used = 0;
+        available = 64;
     }
-    /* process complete blocks of input */
-    while (n >= 64) {
-        rs_mdfour_block(md, in);
-        in += 64;
-        n -= 64;
-    }
-    /* Put remaining bytes onto tail*/
-    if (n) {
-        memcpy(&md->tail[md->tail_len], in, n);
-        md->tail_len += n;
-    }
+
+    memset(&ctx->buffer[used], 0, available - 8);
+
+#ifdef HAVE_UINT64
+    ctx->totalN <<= 3;
+    OUT8(&ctx->buffer[56], ctx->totalN);
+#else
+    ctx->totalN_lo <<= 3;
+    OUT4(&ctx->buffer[56], ctx->totalN_lo);
+    OUT4(&ctx->buffer[60], ctx->totalN_hi);
+#endif
+
+    md4cruncher(ctx, ctx->buffer, 64);
+
+    OUT4(&result[0], ctx->a)
+    OUT4(&result[4], ctx->b)
+    OUT4(&result[8], ctx->c)
+    OUT4(&result[12], ctx->d)
+
+    memset(ctx, 0, sizeof(*ctx));
 }
 
-
-void
-rs_mdfour_result(rs_mdfour_t * md, unsigned char *out)
-{
-    rs_mdfour_tail(md);
-
-    copy4(out, md->A);
-    copy4(out + 4, md->B);
-    copy4(out + 8, md->C);
-    copy4(out + 12, md->D);
-}
-
-
-void
-rs_mdfour(unsigned char *out, void const *in, size_t n)
-{
-    rs_mdfour_t     md;
-
-    rs_mdfour_begin(&md);
-    rs_mdfour_update(&md, in, n);
-    rs_mdfour_result(&md, out);
-}
+#endif /* ! HAVE_OPENSSL */
 
 /* vim: expandtab shiftwidth=4 tabstop=4 sts=4
  */

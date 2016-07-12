@@ -1,3 +1,4 @@
+# -*- c-basic-offset: 4; indent-tabs-mode: nil; -*-
 # Copyright (C) 2015 Adam Schubert <adam.schubert@sg1-game.net>
 # Copyright 2016 Martin Pool
 #
@@ -30,12 +31,15 @@ set(LIBRSYNC_VERSION
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+set(CMAKE_C_FLAGS_RELEASE "-O3")
+set(CMAKE_C_FLAGS_DEBUG "-g -O2")
+
 if (NOT CMAKE_SYSTEM_PROCESSOR)
-	message(FATAL_ERROR "No target CPU architecture set")
+    message(FATAL_ERROR "No target CPU architecture set")
 endif()
 
 if (NOT CMAKE_SYSTEM_NAME)
-	message(FATAL_ERROR "No target OS set")
+    message(FATAL_ERROR "No target OS set")
 endif()
 
 # Add an option to include compression support
@@ -45,6 +49,8 @@ option(ENABLE_COMPRESSION "Whether or not to build with compression support" OFF
 if (ENABLE_COMPRESSION)
     message(WARNING "Compression support is not functional. See issue #8.")
 endif (ENABLE_COMPRESSION)
+
+option(ENABLE_OPENSSL "Whether or not to link the openssl libraries if available" ON)
 
 include ( CheckIncludeFiles )
 check_include_files ( alloca.h HAVE_ALLOCA_H )
@@ -142,10 +148,15 @@ message (STATUS "PROJECT_NAME  = ${PROJECT_NAME}")
 message (STATUS "BUILD_HOSTNAME = ${BUILD_HOSTNAME}")
 message (STATUS "CMAKE_SYSTEM = ${CMAKE_SYSTEM}")
 
+set(RSYNC_LIBRARIES "")
+
+set(RDIFF_LIBRARIES "rsync")
+
 # Find POPT
 find_package(POPT)
 if (POPT_FOUND)
   include_directories(${POPT_INCLUDE_DIRS})
+  list(APPEND RDIFF_LIBRARIES ${POPT_LIBRARIES})
 endif (POPT_FOUND)
 
 # Add an option to exclude rdiff executable from build
@@ -160,6 +171,7 @@ if (BZIP2_FOUND)
   message (STATUS "BZIP2_INCLUDE_DIR  = ${BZIP2_INCLUDE_DIR}")
   message (STATUS "BZIP2_LIBRARIES = ${BZIP2_LIBRARIES}")
   include_directories(${BZIP2_INCLUDE_DIR})
+  list(APPEND RSYNC_LIBRARIES ${BZIP2_LIBRARIES})
 endif (BZIP2_FOUND)
 
 # Find Perl
@@ -175,6 +187,7 @@ if (ZLIB_FOUND)
   message (STATUS "ZLIB_INCLUDE_DIR  = ${ZLIB_INCLUDE_DIR}")
   message (STATUS "ZLIB_LIBRARIES = ${ZLIB_LIBRARIES}")
   include_directories(${ZLIB_INCLUDE_DIRS})
+  list(APPEND RSYNC_LIBRARIES ${ZLIB_LIBRARIES})
 endif (ZLIB_FOUND)
 
 # Doxygen doc generator
@@ -187,6 +200,22 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM
     )
 endif(DOXYGEN_FOUND)
+
+if (ENABLE_OPENSSL)
+    find_package(OpenSSL)
+    if (OPENSSL_FOUND)
+        message (STATUS "Found components for OpenSSL")
+        message (STATUS "OPENSSL_INCLUDE_DIR  = ${OPENSSL_INCLUDE_DIR}")
+        message (STATUS "OPENSSL_LIBRARIES = ${OPENSSL_LIBRARIES}")
+        include_directories(${OPENSSL_INCLUDE_DIR})
+        list(APPEND RSYNC_LIBRARIES ${OPENSSL_LIBRARIES})
+        add_definitions(-DHAVE_OPENSSL)
+    else()
+        message (STATUS "OpenSSL not found, using built-in md4")
+    endif(OPENSSL_FOUND)
+else()
+    message (STATUS "OpenSSL support disabled, using built-in md4")
+endif(ENABLE_OPENSSL)
 
 # Generate prototab.c/h
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src)
@@ -224,9 +253,9 @@ if (BUILD_RDIFF)
 else (BUILD_RDIFF)
   set(LAST_TARGET rsync)
 endif (BUILD_RDIFF)
+
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 add_dependencies(check ${LAST_TARGET} isprefix_test)
-
 
 enable_testing()
 
@@ -241,9 +270,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/librsync-config.h.cmake ${CMAKE_C
 # * The generated source dir
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
-
-
-
 
 ########### next target ###############
 
@@ -317,11 +343,13 @@ add_library(rsync SHARED ${rsync_LIB_SRCS})
 # - and libraries are found
 if (ENABLE_COMPRESSION)
   if (ZLIB_FOUND AND BZIP2_FOUND)
-    target_link_libraries(rsync ${ZLIB_LIBRARIES} ${BZIP2_LIBRARIES})
+    # target_link_libraries(rsync ${ZLIB_LIBRARIES} ${BZIP2_LIBRARIES})
   else (ZLIB_FOUND AND BZIP2_FOUND)
     message (WARNING "zlib and bzip2 librares are required to enable compression")
   endif (ZLIB_FOUND AND BZIP2_FOUND)
 endif (ENABLE_COMPRESSION)
+
+target_link_libraries(rsync ${RSYNC_LIBRARIES})
 
 set_target_properties(rsync PROPERTIES VERSION ${LIBRSYNC_VERSION}
         SOVERSION ${LIBRSYNC_MAJOR_VERSION})
@@ -344,11 +372,14 @@ if (BUILD_RDIFF)
       # but the static library does not, and will need a link time dependency for iconv
       FIND_LIBRARY(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2)
 
-      target_link_libraries(rdiff rsync ${POPT_LIBRARIES} ${ICONV_LIBRARIES})
+      #target_link_libraries(rdiff rsync ${POPT_LIBRARIES} ${ICONV_LIBRARIES})
+      list(APPEND RDIFF_LIBRARIES ${ICONV_LIBRARIES})
     ELSE()
       # linux doesn't need a -liconv
-      target_link_libraries(rdiff rsync ${POPT_LIBRARIES})
+      #target_link_libraries(rdiff rsync ${POPT_LIBRARIES})
     ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+    target_link_libraries(rdiff ${RDIFF_LIBRARIES})
   else (POPT_FOUND)
     message (WARNING "Popt library is required for rdiff target")
   endif (POPT_FOUND)
@@ -366,4 +397,4 @@ install(FILES
 
 message (STATUS "CMAKE_C_FLAGS  = ${CMAKE_C_FLAGS}")
 
-# vim: shiftwidth=4 expandtab
+# vim: expandtab shiftwidth=4 tabstop=4 sts=4
