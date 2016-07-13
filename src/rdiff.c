@@ -268,6 +268,9 @@ static rs_result rdiff_sig(poptContext opcon)
         /* By default, for compatibility with rdiff 0.9.8 and before, mdfour
          * sums are truncated to only 8 bytes, making them even weaker, but
          * making the signature file shorter.
+         * note that the weak sum and strong sum must both match for a hit
+         * to be considered.  that somewhat ameliorates chopping the mdfour
+         * in half.
          */
 
         if (!strong_len)
